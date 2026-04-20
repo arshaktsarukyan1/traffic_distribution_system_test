@@ -279,20 +279,20 @@ export function CampaignBuilderForm({ campaignId }: CampaignBuilderFormProps) {
           {refsLoading ? "Loading domains, landers, offers, and traffic sources…" : "Loading campaign…"}
         </p>
       ) : (
-        <div className="mx-auto flex max-w-5xl flex-col gap-6">
+        <div className="flex flex-col gap-6">
           {error ? (
             <p className="rounded-md bg-red-50 px-3 py-2 text-sm text-red-800" role="alert">
               {error}
             </p>
           ) : null}
 
-          <section className="rounded-lg border border-slate-200 bg-white p-4 shadow-sm">
+          <section className="rounded-lg border border-slate-300 bg-white p-4 shadow-sm">
             <h2 className="text-base font-semibold text-slate-900">Campaign details</h2>
             <div className="mt-4 grid gap-4 sm:grid-cols-2">
-              <label className="block text-sm">
-                <span className="font-medium text-slate-700">Name</span>
+              <label className="form-field">
+                <span className="form-label">Name</span>
                 <input
-                  className="mt-1 w-full rounded-md border border-slate-200 px-3 py-2"
+                  className="form-control"
                   value={name}
                   onChange={(e) => {
                     const v = e.target.value;
@@ -303,10 +303,10 @@ export function CampaignBuilderForm({ campaignId }: CampaignBuilderFormProps) {
                   }}
                 />
               </label>
-              <label className="block text-sm">
-                <span className="font-medium text-slate-700">Slug</span>
+              <label className="form-field">
+                <span className="form-label">Slug</span>
                 <input
-                  className="mt-1 w-full rounded-md border border-slate-200 px-3 py-2"
+                  className="form-control"
                   value={slug}
                   onChange={(e) => {
                     setSlugTouched(true);
@@ -314,10 +314,10 @@ export function CampaignBuilderForm({ campaignId }: CampaignBuilderFormProps) {
                   }}
                 />
               </label>
-              <label className="block text-sm">
-                <span className="font-medium text-slate-700">Status</span>
+              <label className="form-field">
+                <span className="form-label">Status</span>
                 <select
-                  className="mt-1 w-full rounded-md border border-slate-200 px-3 py-2"
+                  className="form-control"
                   value={status}
                   onChange={(e) => setStatus(e.target.value)}
                 >
@@ -327,10 +327,10 @@ export function CampaignBuilderForm({ campaignId }: CampaignBuilderFormProps) {
                   <option value="archived">archived</option>
                 </select>
               </label>
-              <label className="block text-sm">
-                <span className="font-medium text-slate-700">Traffic source</span>
+              <label className="form-field">
+                <span className="form-label">Traffic source</span>
                 <select
-                  className="mt-1 w-full rounded-md border border-slate-200 px-3 py-2 disabled:bg-slate-50 disabled:text-slate-500"
+                  className="form-control disabled:bg-slate-100 disabled:text-slate-600"
                   disabled={refsLoading}
                   value={trafficSourceId}
                   onChange={(e) =>
@@ -356,18 +356,18 @@ export function CampaignBuilderForm({ campaignId }: CampaignBuilderFormProps) {
                   </span>
                 ) : null}
               </label>
-              <label className="block text-sm sm:col-span-2">
-                <span className="font-medium text-slate-700">Destination URL (fallback)</span>
+              <label className="form-field sm:col-span-2">
+                <span className="form-label">Destination URL (fallback)</span>
                 <input
-                  className="mt-1 w-full rounded-md border border-slate-200 px-3 py-2"
+                  className="form-control"
                   value={destinationUrl}
                   onChange={(e) => setDestinationUrl(e.target.value)}
                 />
               </label>
-              <label className="block text-sm">
-                <span className="font-medium text-slate-700">Domain</span>
+              <label className="form-field">
+                <span className="form-label">Domain</span>
                 <select
-                  className="mt-1 w-full rounded-md border border-slate-200 px-3 py-2"
+                  className="form-control"
                   value={domainId}
                   onChange={(e) =>
                     setDomainId(e.target.value === "" ? "" : Number(e.target.value))
@@ -384,27 +384,27 @@ export function CampaignBuilderForm({ campaignId }: CampaignBuilderFormProps) {
                   Used to preview tracking links with your tracking hostname.
                 </span>
               </label>
-              <label className="block text-sm">
-                <span className="font-medium text-slate-700">Timezone</span>
+              <label className="form-field">
+                <span className="form-label">Timezone</span>
                 <input
-                  className="mt-1 w-full rounded-md border border-slate-200 px-3 py-2"
+                  className="form-control"
                   value={timezone}
                   onChange={(e) => setTimezone(e.target.value)}
                 />
               </label>
-              <label className="block text-sm">
-                <span className="font-medium text-slate-700">Daily budget</span>
+              <label className="form-field">
+                <span className="form-label">Daily budget</span>
                 <input
-                  className="mt-1 w-full rounded-md border border-slate-200 px-3 py-2"
+                  className="form-control"
                   value={dailyBudget}
                   onChange={(e) => setDailyBudget(e.target.value)}
                   inputMode="decimal"
                 />
               </label>
-              <label className="block text-sm">
-                <span className="font-medium text-slate-700">Monthly budget</span>
+              <label className="form-field">
+                <span className="form-label">Monthly budget</span>
                 <input
-                  className="mt-1 w-full rounded-md border border-slate-200 px-3 py-2"
+                  className="form-control"
                   value={monthlyBudget}
                   onChange={(e) => setMonthlyBudget(e.target.value)}
                   inputMode="decimal"

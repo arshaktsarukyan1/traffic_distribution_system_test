@@ -97,7 +97,7 @@ export default function DomainsPage() {
 
   return (
     <AdminShell title="Domains">
-      <div className="mx-auto max-w-5xl space-y-6">
+      <div className="space-y-6">
         <p className="text-sm text-slate-600">
           Tracking hostnames (no scheme). Set status to <strong>active</strong> only after DNS and TLS
           are ready. Campaigns with an assigned domain only accept redirects on that host — see{" "}
@@ -110,13 +110,13 @@ export default function DomainsPage() {
           </p>
         ) : null}
 
-        <section className="rounded-lg border border-slate-200 bg-white p-4 shadow-sm">
+        <section className="rounded-lg border border-slate-300 bg-white p-4 shadow-sm">
           <h2 className="text-base font-semibold text-slate-900">Add domain</h2>
           <div className="mt-3 flex flex-wrap items-end gap-3">
-            <label className="block min-w-[14rem] flex-1 text-sm">
-              <span className="font-medium text-slate-700">Hostname</span>
+            <label className="form-field min-w-[14rem] flex-1">
+              <span className="form-label">Hostname</span>
               <input
-                className="mt-1 w-full rounded-md border border-slate-200 px-3 py-2 font-mono text-sm"
+                className="form-control form-control--mono"
                 value={name}
                 onChange={(e) => setName(e.target.value.trim())}
                 placeholder="track.example.com"
@@ -125,10 +125,10 @@ export default function DomainsPage() {
                 <span className="mt-1 block text-xs text-red-600">{fieldErrors.name}</span>
               ) : null}
             </label>
-            <label className="block text-sm">
-              <span className="font-medium text-slate-700">Status</span>
+            <label className="form-field">
+              <span className="form-label">Status</span>
               <select
-                className="mt-1 w-40 rounded-md border border-slate-200 px-3 py-2"
+                className="form-control w-40"
                 value={status}
                 onChange={(e) => setStatus(e.target.value as typeof status)}
               >
@@ -140,7 +140,7 @@ export default function DomainsPage() {
             <button
               type="button"
               disabled={creating}
-              className="rounded-md bg-slate-900 px-4 py-2 text-sm font-medium text-white hover:bg-slate-800 disabled:opacity-50"
+              className="inline-flex h-11 items-center rounded-md bg-slate-900 px-4 text-sm font-medium text-white hover:bg-slate-800 disabled:opacity-50"
               onClick={() => void create()}
             >
               {creating ? "Adding…" : "Add domain"}

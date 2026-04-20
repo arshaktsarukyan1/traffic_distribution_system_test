@@ -131,7 +131,7 @@ export function ManualConversionForm() {
         </Link>
       }
     >
-      <div className="mx-auto max-w-2xl space-y-4">
+      <div className="space-y-4">
         <p className="text-sm text-slate-600">
           Record revenue for orders that did not post through an integration. Submissions use the
           internal API proxy (credentials stay on the server). Restrict access to this screen in
@@ -159,17 +159,17 @@ export function ManualConversionForm() {
         ) : null}
 
         <form
-          className="space-y-4 rounded-lg border border-slate-200 bg-white p-4 shadow-sm"
+          className="space-y-4 rounded-lg border border-slate-300 bg-white p-4 shadow-sm"
           onSubmit={(e) => {
             e.preventDefault();
             void submit();
           }}
         >
-          <label className="block text-sm">
-            <span className="font-medium text-slate-700">Campaign</span>
+          <label className="form-field">
+            <span className="form-label">Campaign</span>
             <select
               required
-              className="mt-1 w-full rounded-md border border-slate-200 px-3 py-2"
+              className="form-control"
               value={campaignId}
               onChange={(e) =>
                 setCampaignId(e.target.value ? Number(e.target.value) : "")
@@ -184,34 +184,34 @@ export function ManualConversionForm() {
             </select>
           </label>
 
-          <label className="block text-sm">
-            <span className="font-medium text-slate-700">Amount</span>
+          <label className="form-field">
+            <span className="form-label">Amount</span>
             <input
               required
               type="number"
               min={0}
               step="0.01"
-              className="mt-1 w-full rounded-md border border-slate-200 px-3 py-2"
+              className="form-control"
               value={amount}
               onChange={(e) => setAmount(e.target.value)}
             />
           </label>
 
-          <label className="block text-sm">
-            <span className="font-medium text-slate-700">Converted at</span>
+          <label className="form-field">
+            <span className="form-label">Converted at</span>
             <input
               required
               type="datetime-local"
-              className="mt-1 w-full rounded-md border border-slate-200 px-3 py-2"
+              className="form-control"
               value={convertedAt}
               onChange={(e) => setConvertedAt(e.target.value)}
             />
           </label>
 
-          <label className="block text-sm">
-            <span className="font-medium text-slate-700">Click UUID (optional)</span>
+          <label className="form-field">
+            <span className="form-label">Click UUID (optional)</span>
             <input
-              className="mt-1 w-full rounded-md border border-slate-200 px-3 py-2 font-mono text-sm"
+              className="form-control form-control--mono"
               value={clickUuid}
               onChange={(e) => setClickUuid(e.target.value)}
               placeholder="00000000-0000-4000-8000-000000000000"
@@ -219,10 +219,10 @@ export function ManualConversionForm() {
           </label>
 
           <div className="grid gap-4 sm:grid-cols-2">
-            <label className="block text-sm">
-              <span className="font-medium text-slate-700">Offer (optional)</span>
+            <label className="form-field">
+              <span className="form-label">Offer (optional)</span>
               <select
-                className="mt-1 w-full rounded-md border border-slate-200 px-3 py-2"
+                className="form-control"
                 value={offerId}
                 onChange={(e) =>
                   setOfferId(e.target.value ? Number(e.target.value) : "")
@@ -236,10 +236,10 @@ export function ManualConversionForm() {
                 ))}
               </select>
             </label>
-            <label className="block text-sm">
-              <span className="font-medium text-slate-700">Lander (optional)</span>
+            <label className="form-field">
+              <span className="form-label">Lander (optional)</span>
               <select
-                className="mt-1 w-full rounded-md border border-slate-200 px-3 py-2"
+                className="form-control"
                 value={landerId}
                 onChange={(e) =>
                   setLanderId(e.target.value ? Number(e.target.value) : "")
@@ -255,19 +255,19 @@ export function ManualConversionForm() {
             </label>
           </div>
 
-          <label className="block text-sm">
-            <span className="font-medium text-slate-700">Note (optional)</span>
+          <label className="form-field">
+            <span className="form-label">Note (optional)</span>
             <textarea
-              className="mt-1 min-h-[88px] w-full rounded-md border border-slate-200 px-3 py-2"
+              className="form-textarea"
               value={note}
               onChange={(e) => setNote(e.target.value)}
             />
           </label>
 
-          <label className="block text-sm">
-            <span className="font-medium text-slate-700">Source label (optional)</span>
+          <label className="form-field">
+            <span className="form-label">Source label (optional)</span>
             <input
-              className="mt-1 w-full rounded-md border border-slate-200 px-3 py-2"
+              className="form-control"
               value={source}
               onChange={(e) => setSource(e.target.value)}
               placeholder="manual"

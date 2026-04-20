@@ -46,28 +46,28 @@ export function LoginFormExample() {
 
   return (
     <form
-      className="mx-auto max-w-md space-y-3 rounded-lg border border-slate-200 bg-white p-4 text-sm"
+      className="mx-auto max-w-md space-y-3 rounded-lg border border-slate-300 bg-white p-4 text-sm"
       onSubmit={(ev) => {
         ev.preventDefault();
         void submit();
       }}
     >
       <p className="font-medium text-slate-800">Example form (422 validation demo)</p>
-      <label className="block space-y-1">
-        <span className="text-slate-600">Email (maps to domain `name` in demo)</span>
+      <label className="form-field">
+        <span className="form-label">Email (maps to domain `name` in demo)</span>
         <input
-          className="w-full rounded border border-slate-300 px-2 py-1"
+          className="form-control"
           value={email}
           onChange={(ev) => setEmail(ev.target.value)}
           autoComplete="email"
         />
         {fieldErrors.name ? <span className="text-red-600">{fieldErrors.name}</span> : null}
       </label>
-      <label className="block space-y-1">
-        <span className="text-slate-600">Password (maps to `status` in demo)</span>
+      <label className="form-field">
+        <span className="form-label">Password (maps to `status` in demo)</span>
         <input
           type="password"
-          className="w-full rounded border border-slate-300 px-2 py-1"
+          className="form-control"
           value={password}
           onChange={(ev) => setPassword(ev.target.value)}
           autoComplete="current-password"

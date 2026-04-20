@@ -152,7 +152,7 @@ export function DomainDetailClient({ domainId }: { domainId: number }) {
         </Link>
       }
     >
-      <div className="mx-auto max-w-5xl space-y-6">
+      <div className="space-y-6">
         <p className="text-sm text-slate-600">
           Assign this hostname to one or more campaigns. Redirects only honour the domain when status
           is <strong>active</strong> and the request <code className="rounded bg-slate-100 px-1">Host</code>{" "}
@@ -167,21 +167,21 @@ export function DomainDetailClient({ domainId }: { domainId: number }) {
 
         {!loading && domain ? (
           <>
-            <section className="rounded-lg border border-slate-200 bg-white p-4 shadow-sm">
+            <section className="rounded-lg border border-slate-300 bg-white p-4 shadow-sm">
               <h2 className="text-base font-semibold text-slate-900">Domain settings</h2>
               <div className="mt-4 grid gap-4 sm:grid-cols-2">
-                <label className="block text-sm sm:col-span-2">
-                  <span className="font-medium text-slate-700">Hostname</span>
+                <label className="form-field sm:col-span-2">
+                  <span className="form-label">Hostname</span>
                   <input
-                    className="mt-1 w-full rounded-md border border-slate-200 px-3 py-2 font-mono text-sm"
+                    className="form-control form-control--mono"
                     value={name}
                     onChange={(e) => setName(e.target.value)}
                   />
                 </label>
-                <label className="block text-sm">
-                  <span className="font-medium text-slate-700">Status</span>
+                <label className="form-field">
+                  <span className="form-label">Status</span>
                   <select
-                    className="mt-1 w-full rounded-md border border-slate-200 px-3 py-2"
+                    className="form-control"
                     value={status}
                     onChange={(e) => setStatus(e.target.value as typeof status)}
                   >
@@ -190,10 +190,10 @@ export function DomainDetailClient({ domainId }: { domainId: number }) {
                     <option value="disabled">disabled</option>
                   </select>
                 </label>
-                <label className="flex items-center gap-2 pt-6 text-sm">
+                <label className="flex items-center gap-2 pt-7 text-sm">
                   <input
                     type="checkbox"
-                    className="h-4 w-4 rounded border-slate-300"
+                    className="form-checkbox"
                     checked={isActive}
                     onChange={(e) => setIsActive(e.target.checked)}
                   />

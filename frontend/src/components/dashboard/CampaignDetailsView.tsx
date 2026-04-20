@@ -145,7 +145,7 @@ export function CampaignDetailsView({ campaignId }: { campaignId: number }) {
         </div>
       }
     >
-      <div className="mx-auto flex max-w-6xl flex-col gap-4">
+      <div className="flex flex-col gap-4">
         {campaign ? (
           <section className="rounded-lg border border-slate-200 bg-white p-4 shadow-sm">
             <div className="flex flex-wrap items-start justify-between gap-3">

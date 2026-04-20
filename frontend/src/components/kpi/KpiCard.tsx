@@ -13,9 +13,9 @@ export type KpiCardProps = {
 };
 
 const deltaToneClass: Record<NonNullable<KpiCardProps["deltaTone"]>, string> = {
-  positive: "text-emerald-800",
-  negative: "text-red-800",
-  neutral: "text-slate-700",
+  positive: "text-emerald-900",
+  negative: "text-rose-900",
+  neutral: "text-slate-800",
 };
 
 export function KpiCard({
@@ -27,27 +27,27 @@ export function KpiCard({
   icon,
 }: KpiCardProps) {
   return (
-    <section className="rounded-lg border border-slate-200 bg-white p-4 shadow-sm">
+    <section className="rounded-lg border border-slate-300 bg-white p-4 shadow-sm">
       <div className="flex items-start justify-between gap-3">
         <div className="min-w-0">
-          <h2 className="text-sm font-medium text-slate-700">
+          <h2 className="text-base font-semibold text-slate-900">
             {label}
           </h2>
-          <p className="mt-2 text-2xl font-semibold tracking-tight text-slate-900">
+          <p className="mt-2 text-3xl font-bold tracking-tight text-slate-950">
             {value}
           </p>
           {description ? (
-            <p className="mt-1 text-xs text-slate-600">{description}</p>
+            <p className="mt-1 text-sm text-slate-700">{description}</p>
           ) : null}
           {delta ? (
-            <p className={`mt-2 text-xs font-medium ${deltaToneClass[deltaTone]}`}>
+            <p className={`mt-2 text-sm font-semibold ${deltaToneClass[deltaTone]}`}>
               {delta}
             </p>
           ) : null}
         </div>
         {icon ? (
           <div
-            className="flex h-10 w-10 shrink-0 items-center justify-center rounded-md border border-slate-200 bg-slate-50 text-slate-700"
+            className="flex h-11 w-11 shrink-0 items-center justify-center rounded-md border border-blue-200 bg-blue-50 text-blue-900"
             aria-hidden
           >
             {icon}

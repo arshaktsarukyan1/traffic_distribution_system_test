@@ -71,7 +71,7 @@ export function WeightSplitEditor({
   };
 
   return (
-    <section className="rounded-lg border border-slate-200 bg-white p-4 shadow-sm">
+    <section className="rounded-lg border border-slate-300 bg-white p-4 shadow-sm">
       <div className="flex flex-wrap items-start justify-between gap-3">
         <div>
           <h2 className="text-base font-semibold text-slate-900">{title}</h2>
@@ -126,7 +126,7 @@ export function WeightSplitEditor({
                   <tr key={row.id} className="border-b border-slate-100">
                     <td className="py-2 pr-4">
                       <select
-                        className="w-full max-w-xs rounded-md border border-slate-200 px-2 py-1.5 text-slate-900"
+                        className="form-control h-10 w-full max-w-xs px-2 text-sm"
                         value={row.id}
                         onChange={(e) => {
                           const nextId = Number(e.target.value);
@@ -149,7 +149,7 @@ export function WeightSplitEditor({
                         type="number"
                         min={1}
                         max={100}
-                        className="w-24 rounded-md border border-slate-200 px-2 py-1.5 text-slate-900"
+                        className="form-control h-10 w-24 px-2 text-sm"
                         value={row.weight_percent}
                         onChange={(e) =>
                           updateRow(row.id, { weight_percent: Number(e.target.value) || 0 })
@@ -159,7 +159,7 @@ export function WeightSplitEditor({
                     <td className="py-2 pr-4">
                       <input
                         type="checkbox"
-                        className="h-4 w-4 rounded border-slate-300"
+                        className="form-checkbox"
                         checked={row.is_active}
                         onChange={(e) => updateRow(row.id, { is_active: e.target.checked })}
                       />

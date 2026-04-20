@@ -46,7 +46,7 @@ export default function TrafficSourcesPage() {
         </Link>
       }
     >
-      <div className="mx-auto max-w-3xl space-y-4">
+      <div className="space-y-4">
         <p className="text-sm text-slate-600">
           Campaigns must reference a traffic source. Sources are managed in the database (seeders or
           admin tooling); this page is read-only.

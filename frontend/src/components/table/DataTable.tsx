@@ -25,17 +25,17 @@ export function DataTable<Row>({
   emptyMessage = "No rows to display.",
 }: DataTableProps<Row>) {
   return (
-    <div className="overflow-x-auto rounded-lg border border-slate-200 bg-white shadow-sm">
-      <table className="min-w-full border-collapse text-left text-sm text-slate-900">
-        {caption ? <caption className="border-b border-slate-200 px-4 py-3 text-left text-sm font-semibold text-slate-900">{caption}</caption> : null}
-        <thead className="bg-slate-50 text-xs font-semibold uppercase tracking-wide text-slate-700">
+    <div className="overflow-x-auto rounded-lg border border-slate-300 bg-white shadow-sm">
+      <table className="min-w-full border-collapse text-left text-base text-slate-950">
+        {caption ? <caption className="border-b border-slate-300 bg-blue-50 px-4 py-3 text-left text-base font-semibold text-slate-950">{caption}</caption> : null}
+        <thead className="bg-slate-100 text-sm font-semibold uppercase tracking-wide text-slate-800">
           <tr>
             {columns.map((col) => (
               <th
                 key={col.id}
                 scope="col"
                 className={
-                  "border-b border-slate-200 px-4 py-3 " +
+                  "border-b border-slate-300 px-4 py-3 " +
                   (col.align === "right" ? "text-right tabular-nums" : "text-left")
                 }
               >
@@ -58,13 +58,13 @@ export function DataTable<Row>({
             rows.map((row) => (
               <tr
                 key={getRowId(row)}
-                className="odd:bg-white even:bg-slate-50/60 hover:bg-slate-100/80"
+                className="odd:bg-white even:bg-blue-50/30 hover:bg-blue-100/60"
               >
                 {columns.map((col) => (
                   <td
                     key={col.id}
                     className={
-                      "border-t border-slate-200 px-4 py-3 " +
+                      "border-t border-slate-300 px-4 py-3 " +
                       (col.align === "right" ? "text-right tabular-nums" : "text-left")
                     }
                   >

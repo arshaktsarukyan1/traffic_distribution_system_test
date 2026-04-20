@@ -64,7 +64,7 @@ export default function CampaignsPage() {
       topbarRight={
         <Link
           href="/campaigns/new"
-          className="rounded-md bg-slate-900 px-3 py-2 text-sm font-medium text-white hover:bg-slate-800"
+          className="rounded-md bg-slate-900 px-3 py-2 text-sm font-medium text-white hover:bg-slate-800 hover:text-white"
         >
           New campaign
         </Link>
@@ -75,7 +75,7 @@ export default function CampaignsPage() {
         <p className="rounded-md bg-red-50 px-3 py-2 text-sm text-red-800">{error}</p>
       ) : null}
       {!loading && !error ? (
-        <div className="mx-auto max-w-5xl overflow-x-auto rounded-lg border border-slate-200 bg-white shadow-sm">
+        <div className="overflow-x-auto rounded-lg border border-slate-200 bg-white shadow-sm">
           <table className="min-w-full border-collapse text-left text-sm">
             <thead>
               <tr className="border-b border-slate-200 bg-slate-50 text-slate-600">
@@ -98,14 +98,16 @@ export default function CampaignsPage() {
                   <td className="px-4 py-3">
                     <Link
                       href={`/campaigns/${c.id}/edit`}
-                      className="font-medium text-slate-900 underline-offset-2 hover:underline"
+                      className="inline-flex h-9 items-center rounded-md border border-blue-700 bg-blue-700 px-3 text-sm font-semibold text-white outline-none ring-blue-700 ring-offset-2 hover:bg-blue-800 hover:text-white focus-visible:ring-4"
                     >
                       Edit
                     </Link>
-                    <span className="px-2 text-slate-300">/</span>
+                    <span className="px-2 text-slate-400" aria-hidden>
+                      /
+                    </span>
                     <Link
                       href={`/campaigns/${c.id}`}
-                      className="font-medium text-slate-900 underline-offset-2 hover:underline"
+                      className="inline-flex h-9 items-center rounded-md border border-amber-400 bg-amber-50 px-3 text-sm font-semibold text-amber-900 outline-none ring-blue-700 ring-offset-2 hover:bg-amber-100 focus-visible:ring-4"
                     >
                       Details
                     </Link>

@@ -158,13 +158,13 @@ export default function AbTestsPage() {
 
   return (
     <AdminShell title="A/B test comparison">
-      <div className="mx-auto flex max-w-6xl flex-col gap-4">
-        <section className="rounded-lg border border-slate-200 bg-white p-4 shadow-sm">
+      <div className="flex flex-col gap-4">
+        <section className="rounded-lg border border-slate-300 bg-white p-4 shadow-sm">
           <div className="flex flex-wrap items-end justify-between gap-3">
-            <label className="block text-sm">
-              <span className="font-medium text-slate-700">Campaign</span>
+            <label className="form-field">
+              <span className="form-label">Campaign</span>
               <select
-                className="mt-1 w-[28rem] max-w-full rounded-md border border-slate-200 px-3 py-2"
+                className="form-control w-[28rem] max-w-full"
                 value={campaignId}
                 onChange={(e) => {
                   const next = e.target.value ? Number(e.target.value) : "";

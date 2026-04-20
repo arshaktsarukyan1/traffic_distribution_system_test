@@ -23,8 +23,8 @@ const rows: Row[] = [
 
 export default function OverviewPage() {
   return (
-    <div className="mx-auto flex max-w-6xl flex-col gap-6">
-      <p className="text-sm text-slate-700">
+    <div className="flex flex-col gap-6">
+      <p className="text-base text-slate-800">
         Internal dashboard shell with reusable KPI, table, chart, and filter building blocks.
         Use Tab from the top of the page to verify the skip link and focus order.
       </p>
@@ -34,13 +34,13 @@ export default function OverviewPage() {
           <>
             <button
               type="button"
-              className="h-10 rounded-md border border-slate-300 bg-white px-4 text-sm font-medium text-slate-900 outline-none ring-slate-900 ring-offset-2 hover:bg-slate-50 focus-visible:ring-2"
+              className="h-11 rounded-md border border-slate-400 bg-white px-4 text-base font-semibold text-slate-950 outline-none ring-blue-700 ring-offset-2 hover:bg-slate-100 focus-visible:ring-4"
             >
               Reset
             </button>
             <button
               type="button"
-              className="h-10 rounded-md bg-slate-900 px-4 text-sm font-medium text-white outline-none ring-slate-900 ring-offset-2 hover:bg-slate-800 focus-visible:ring-2"
+              className="h-11 rounded-md bg-blue-800 px-4 text-base font-semibold text-white outline-none ring-blue-700 ring-offset-2 hover:bg-blue-900 focus-visible:ring-4"
             >
               Apply
             </button>

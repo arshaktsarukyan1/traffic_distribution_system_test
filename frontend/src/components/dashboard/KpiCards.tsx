@@ -31,17 +31,17 @@ type CardProps = {
 function Card({ label, value, delta, tone = "neutral" }: CardProps) {
   const toneClass =
     tone === "good"
-      ? "text-emerald-700"
+      ? "text-emerald-900"
       : tone === "bad"
-        ? "text-red-700"
-        : "text-slate-600";
+        ? "text-rose-900"
+        : "text-slate-800";
   return (
-    <div className="rounded-lg border border-slate-200 bg-white p-4 shadow-sm">
-      <div className="text-xs font-semibold uppercase tracking-wide text-slate-500">
+    <div className="rounded-lg border border-slate-300 bg-white p-4 shadow-sm">
+      <div className="text-sm font-semibold uppercase tracking-wide text-slate-700">
         {label}
       </div>
-      <div className="mt-2 text-2xl font-semibold text-slate-900">{value}</div>
-      <div className={"mt-1 text-sm font-medium " + toneClass}>{delta}</div>
+      <div className="mt-2 text-3xl font-bold text-slate-950">{value}</div>
+      <div className={"mt-1 text-sm font-semibold " + toneClass}>{delta}</div>
     </div>
   );
 }

@@ -1,5 +1,6 @@
 import "./globals.css";
 import type { ReactNode } from "react";
+import { GlobalAppWrapper } from "@/components/layout/GlobalAppWrapper";
 
 export const metadata = {
   title: "TDS Dashboard",
@@ -9,7 +10,9 @@ export const metadata = {
 export default function RootLayout({ children }: { children: ReactNode }) {
   return (
     <html lang="en">
-      <body>{children}</body>
+      <body>
+        <GlobalAppWrapper>{children}</GlobalAppWrapper>
+      </body>
     </html>
   );
 }

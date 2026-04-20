@@ -113,7 +113,7 @@ export default function DashboardPage() {
 
   return (
     <AdminShell title="Global dashboard">
-      <div className="mx-auto flex max-w-6xl flex-col gap-4">
+      <div className="flex flex-col gap-4">
         <FiltersBar
           filters={filters}
           onChange={onFiltersChange}
@@ -131,10 +131,6 @@ export default function DashboardPage() {
 
         {!loading && report ? (
           <>
-            <p className="text-sm text-slate-600">
-              Window: <span className="font-medium text-slate-900">{report.window.from}</span> →{" "}
-              <span className="font-medium text-slate-900">{report.window.to}</span> (delta vs previous window)
-            </p>
             <KpiCards current={report.current} delta={report.delta} />
           </>
         ) : null}

@@ -5,10 +5,18 @@ const config: Config = {
   theme: {
     extend: {
       colors: {
-        /** Primary surfaces: slate-900 on white meets WCAG AA for UI type */
         ink: {
           DEFAULT: "#0f172a",
           muted: "#334155",
+        },
+        brand: {
+          50: "#eef4ff",
+          100: "#dce9ff",
+          500: "#2f6af2",
+          600: "#2156d9",
+          700: "#1b47b6",
+          800: "#173f94",
+          900: "#122f71",
         },
       },
     },

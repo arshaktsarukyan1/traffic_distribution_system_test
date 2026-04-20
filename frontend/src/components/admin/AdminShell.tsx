@@ -26,10 +26,10 @@ export function AdminShell({ children, title, topbarRight }: AdminShellProps) {
   const sidebarId = useId();
 
   return (
-    <div className="flex min-h-screen bg-slate-100 text-slate-900">
+    <div className="flex min-h-screen bg-gradient-to-b from-slate-100 to-slate-50 text-slate-950">
       <a
         href="#main-content"
-        className="sr-only focus:not-sr-only focus:absolute focus:left-4 focus:top-4 focus:z-[60] focus:rounded-md focus:bg-white focus:px-4 focus:py-2 focus:text-sm focus:font-medium focus:text-slate-900 focus:shadow-lg focus:outline-none focus:ring-2 focus:ring-slate-900 focus:ring-offset-2"
+        className="sr-only focus:not-sr-only focus:absolute focus:left-4 focus:top-4 focus:z-[60] focus:rounded-md focus:bg-white focus:px-4 focus:py-2 focus:text-base focus:font-semibold focus:text-slate-950 focus:shadow-lg focus:outline-none focus:ring-4 focus:ring-blue-700 focus:ring-offset-2"
       >
         Skip to main content
       </a>
@@ -47,15 +47,15 @@ export function AdminShell({ children, title, topbarRight }: AdminShellProps) {
       <aside
         id={sidebarId}
         className={
-          "fixed inset-y-0 left-0 z-50 w-64 shrink-0 border-r border-slate-200 bg-white shadow-sm transition-transform md:static md:translate-x-0 " +
+          "fixed inset-y-0 left-0 z-50 w-64 shrink-0 border-r border-slate-300 bg-white shadow-md transition-transform md:static md:translate-x-0 " +
           (mobileOpen ? "translate-x-0" : "-translate-x-full md:translate-x-0")
         }
         aria-label="Application"
       >
-        <div className="flex h-14 items-center border-b border-slate-200 px-4">
+        <div className="flex h-16 items-center border-b border-slate-300 px-4">
           <Link
             href="/dashboard"
-            className="text-base font-semibold tracking-tight text-slate-900 outline-none ring-slate-900 ring-offset-2 focus-visible:ring-2"
+            className="text-lg font-bold tracking-tight text-slate-950 outline-none ring-blue-700 ring-offset-2 focus-visible:ring-4"
           >
             TDS Admin
           </Link>
@@ -70,10 +70,10 @@ export function AdminShell({ children, title, topbarRight }: AdminShellProps) {
                   <Link
                     href={item.href}
                     className={
-                      "block rounded-md px-3 py-2 text-sm font-medium outline-none transition-colors ring-slate-900 ring-offset-2 focus-visible:ring-2 " +
+                      "block rounded-md px-3 py-2.5 text-base font-semibold outline-none transition-colors transition-shadow ring-brand-700 ring-offset-2 focus-visible:ring-4 " +
                       (active
-                        ? "bg-slate-900 text-white"
-                        : "text-slate-700 hover:bg-slate-100")
+                        ? "bg-brand-800 text-white shadow-sm hover:bg-brand-900 hover:shadow focus-visible:bg-brand-900"
+                        : "text-slate-800 hover:bg-brand-50 hover:text-brand-900")
                     }
                     aria-current={active ? "page" : undefined}
                     onClick={() => setMobileOpen(false)}
@@ -88,10 +88,10 @@ export function AdminShell({ children, title, topbarRight }: AdminShellProps) {
       </aside>
 
       <div className="flex min-w-0 flex-1 flex-col md:pl-0">
-        <header className="sticky top-0 z-30 flex h-14 items-center gap-3 border-b border-slate-200 bg-white px-4 shadow-sm">
+        <header className="sticky top-0 z-30 flex h-16 items-center gap-3 border-b border-slate-300 bg-white/95 px-4 md:px-6 shadow-sm backdrop-blur">
           <button
             type="button"
-            className="inline-flex h-10 w-10 items-center justify-center rounded-md border border-slate-200 bg-white text-slate-800 outline-none ring-slate-900 ring-offset-2 hover:bg-slate-50 focus-visible:ring-2 md:hidden"
+            className="inline-flex h-11 w-11 items-center justify-center rounded-md border border-slate-300 bg-white text-slate-900 outline-none ring-blue-700 ring-offset-2 hover:bg-slate-100 focus-visible:ring-4 md:hidden"
             aria-controls={sidebarId}
             aria-expanded={mobileOpen}
             onClick={() => setMobileOpen((o) => !o)}
@@ -101,16 +101,16 @@ export function AdminShell({ children, title, topbarRight }: AdminShellProps) {
               {mobileOpen ? "×" : "≡"}
             </span>
           </button>
-          <h1 className="min-w-0 flex-1 truncate text-lg font-semibold text-slate-900">
+          <h1 className="min-w-0 flex-1 truncate text-xl font-bold text-slate-950">
             {title}
           </h1>
           {topbarRight ? (
-            <div className="flex shrink-0 items-center gap-2">{topbarRight}</div>
+            <div className="flex shrink-0 items-center gap-2 pr-1 md:pr-2">{topbarRight}</div>
           ) : null}
         </header>
 
         <main id="main-content" className="flex-1 p-4 md:p-6" tabIndex={-1}>
-          {children}
+          <div className="page-content-wrap">{children}</div>
         </main>
       </div>
     </div>

@@ -171,7 +171,7 @@ export function TargetingRulesSection({ campaignId, offers }: TargetingRulesSect
   }
 
   return (
-    <section className="rounded-lg border border-slate-200 bg-white p-4 shadow-sm">
+    <section className="rounded-lg border border-slate-300 bg-white p-4 shadow-sm">
       <h2 className="text-base font-semibold text-slate-900">Targeting rules</h2>
       <p className="mt-1 text-sm text-slate-600">
         Rules are evaluated in priority order. Country and device filters must match the session to
@@ -206,7 +206,7 @@ export function TargetingRulesSection({ campaignId, offers }: TargetingRulesSect
                   <td className="py-2 pr-3">
                     <input
                       type="number"
-                      className="w-20 rounded-md border border-slate-200 px-2 py-1"
+                      className="form-control h-10 w-20 px-2 text-sm"
                       value={editDraft.priority}
                       onChange={(e) =>
                         setEditDraft({ ...editDraft, priority: Number(e.target.value) || 0 })
@@ -215,7 +215,7 @@ export function TargetingRulesSection({ campaignId, offers }: TargetingRulesSect
                   </td>
                   <td className="py-2 pr-3">
                     <select
-                      className="max-w-[12rem] rounded-md border border-slate-200 px-2 py-1"
+                      className="form-control h-10 max-w-[12rem] px-2 text-sm"
                       value={editDraft.offer_id}
                       onChange={(e) =>
                         setEditDraft({
@@ -234,7 +234,7 @@ export function TargetingRulesSection({ campaignId, offers }: TargetingRulesSect
                   </td>
                   <td className="py-2 pr-3">
                     <input
-                      className="w-16 rounded-md border border-slate-200 px-2 py-1 uppercase"
+                      className="form-control h-10 w-16 px-2 text-sm uppercase"
                       maxLength={2}
                       value={editDraft.country_code}
                       onChange={(e) =>
@@ -247,14 +247,14 @@ export function TargetingRulesSection({ campaignId, offers }: TargetingRulesSect
                   </td>
                   <td className="py-2 pr-3">
                     <input
-                      className="w-36 rounded-md border border-slate-200 px-2 py-1"
+                      className="form-control h-10 w-36 px-2 text-sm"
                       value={editDraft.region}
                       onChange={(e) => setEditDraft({ ...editDraft, region: e.target.value })}
                     />
                   </td>
                   <td className="py-2 pr-3">
                     <select
-                      className="rounded-md border border-slate-200 px-2 py-1"
+                      className="form-control h-10 px-2 text-sm"
                       value={editDraft.device_type}
                       onChange={(e) =>
                         setEditDraft({
@@ -272,7 +272,7 @@ export function TargetingRulesSection({ campaignId, offers }: TargetingRulesSect
                   <td className="py-2 pr-3">
                     <input
                       type="checkbox"
-                      className="h-4 w-4 rounded border-slate-300"
+                      className="form-checkbox"
                       checked={editDraft.is_active}
                       onChange={(e) =>
                         setEditDraft({ ...editDraft, is_active: e.target.checked })
@@ -346,13 +346,13 @@ export function TargetingRulesSection({ campaignId, offers }: TargetingRulesSect
         </table>
       </div>
 
-      <div className="mt-6 border-t border-slate-200 pt-4">
+      <div className="mt-6 border-t border-slate-300 pt-4">
         <h3 className="text-sm font-semibold text-slate-900">Add rule</h3>
         <div className="mt-3 grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
-          <label className="block text-sm">
-            <span className="font-medium text-slate-700">Offer</span>
+          <label className="form-field">
+            <span className="form-label">Offer</span>
             <select
-              className="mt-1 w-full rounded-md border border-slate-200 px-2 py-2"
+              className="form-control"
               value={form.offer_id}
               onChange={(e) =>
                 setForm({
@@ -369,10 +369,10 @@ export function TargetingRulesSection({ campaignId, offers }: TargetingRulesSect
               ))}
             </select>
           </label>
-          <label className="block text-sm">
-            <span className="font-medium text-slate-700">Country (ISO-2)</span>
+          <label className="form-field">
+            <span className="form-label">Country (ISO-2)</span>
             <input
-              className="mt-1 w-full rounded-md border border-slate-200 px-2 py-2 uppercase"
+              className="form-control uppercase"
               maxLength={2}
               value={form.country_code}
               onChange={(e) =>
@@ -380,18 +380,18 @@ export function TargetingRulesSection({ campaignId, offers }: TargetingRulesSect
               }
             />
           </label>
-          <label className="block text-sm">
-            <span className="font-medium text-slate-700">Region</span>
+          <label className="form-field">
+            <span className="form-label">Region</span>
             <input
-              className="mt-1 w-full rounded-md border border-slate-200 px-2 py-2"
+              className="form-control"
               value={form.region}
               onChange={(e) => setForm({ ...form, region: e.target.value })}
             />
           </label>
-          <label className="block text-sm">
-            <span className="font-medium text-slate-700">Device</span>
+          <label className="form-field">
+            <span className="form-label">Device</span>
             <select
-              className="mt-1 w-full rounded-md border border-slate-200 px-2 py-2"
+              className="form-control"
               value={form.device_type}
               onChange={(e) =>
                 setForm({
@@ -406,11 +406,11 @@ export function TargetingRulesSection({ campaignId, offers }: TargetingRulesSect
               <option value="tablet">Tablet</option>
             </select>
           </label>
-          <label className="block text-sm">
-            <span className="font-medium text-slate-700">Priority</span>
+          <label className="form-field">
+            <span className="form-label">Priority</span>
             <input
               type="number"
-              className="mt-1 w-full rounded-md border border-slate-200 px-2 py-2"
+              className="form-control"
               value={form.priority}
               onChange={(e) =>
                 setForm({ ...form, priority: Number(e.target.value) || 0 })
@@ -420,11 +420,11 @@ export function TargetingRulesSection({ campaignId, offers }: TargetingRulesSect
           <label className="flex items-end gap-2 pb-2 text-sm">
             <input
               type="checkbox"
-              className="h-4 w-4 rounded border-slate-300"
+              className="form-checkbox"
               checked={form.is_active}
               onChange={(e) => setForm({ ...form, is_active: e.target.checked })}
             />
-            <span className="font-medium text-slate-700">Active</span>
+            <span className="form-label">Active</span>
           </label>
         </div>
         <button

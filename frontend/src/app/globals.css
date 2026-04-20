@@ -3,12 +3,71 @@
 @tailwind utilities;
 
 @layer base {
-  body {
-    @apply bg-slate-100 text-slate-900 antialiased;
+  :root {
+    color-scheme: light;
   }
 
-  /* Baseline keyboard focus: high-contrast ring, no removal of browser focus */
+  body {
+    @apply bg-slate-50 text-slate-950 antialiased text-[17px] leading-relaxed;
+  }
+
+  a {
+    @apply underline-offset-2;
+  }
+
+  /* Keep default blue link styling only for unstyled anchors. */
+  a:not([class]) {
+    @apply text-blue-800;
+  }
+
+  a:not([class]):hover {
+    @apply text-blue-900;
+  }
+
+  /* High-visibility focus indicator for keyboard users */
   :where(a, button, input, select, textarea, summary):focus-visible {
-    @apply outline-none ring-2 ring-slate-900 ring-offset-2 ring-offset-slate-100;
+    @apply outline-none ring-4 ring-blue-700 ring-offset-2 ring-offset-slate-50;
+  }
+
+  ::selection {
+    @apply bg-amber-200 text-slate-950;
+  }
+}
+
+@layer components {
+  .page-content-wrap {
+    @apply w-full;
+  }
+
+  .form-field {
+    @apply flex min-w-[10rem] flex-col gap-1.5 text-sm;
+  }
+
+  .form-label {
+    @apply text-sm font-semibold text-slate-900;
+  }
+
+  .form-control {
+    @apply h-11 w-full rounded-md border border-slate-400 bg-white px-3 text-base text-slate-950 shadow-sm outline-none ring-blue-700 ring-offset-2 focus-visible:ring-4;
+  }
+
+  select.form-control {
+    @apply appearance-none pr-10;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 20 20' fill='none'%3E%3Cpath d='M5 7.5L10 12.5L15 7.5' stroke='%23334155' stroke-width='1.8' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E");
+    background-position: right 0.75rem center;
+    background-repeat: no-repeat;
+    background-size: 1rem 1rem;
+  }
+
+  .form-control--mono {
+    @apply font-mono text-sm;
+  }
+
+  .form-textarea {
+    @apply min-h-[88px] w-full rounded-md border border-slate-400 bg-white px-3 py-2 text-base text-slate-950 shadow-sm outline-none ring-blue-700 ring-offset-2 focus-visible:ring-4;
+  }
+
+  .form-checkbox {
+    @apply h-5 w-5 rounded border-slate-400 text-blue-700 outline-none ring-blue-700 ring-offset-2 focus-visible:ring-4;
   }
 }
