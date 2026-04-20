@@ -3,6 +3,7 @@
 namespace App\Services\Cost;
 
 use App\Contracts\TrafficSourceCostAdapterInterface;
+use App\Contracts\TrafficSourceCostSyncServiceInterface;
 use App\Models\Campaign;
 use App\Models\CostEntry;
 use App\Models\CostSyncRun;
@@ -13,7 +14,7 @@ use DateTimeInterface;
 use Illuminate\Support\Facades\Log;
 use Throwable;
 
-final class TaboolaCostSyncService
+final class TaboolaCostSyncService implements TrafficSourceCostSyncServiceInterface
 {
     public function __construct(
         private readonly TrafficSourceCostAdapterInterface $costAdapter,
@@ -112,6 +113,11 @@ final class TaboolaCostSyncService
         $run->refresh();
 
         return $run;
+    }
+
+    public function getSourceKey(): string
+    {
+        return 'taboola';
     }
 
     private function ingestDaySpendForCampaign(Campaign $campaign, CostSpendDayRow $row): int

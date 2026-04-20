@@ -10,20 +10,25 @@ use App\Models\KpiDailyAggregate;
 use App\Models\Click;
 use App\Models\Conversion;
 use App\Models\Visit;
-use App\Services\Cost\TaboolaCostSyncService;
+use App\Services\Cost\TrafficSourceCostSyncRegistry;
 use App\Services\Ingestion\IngestionIdempotency;
 use App\Services\Kpi\KpiAggregationService;
 use App\Services\Observability\Metrics;
 use Carbon\Carbon;
 use Database\Seeders\PhaseOneCoreSeeder;
 use Database\Seeders\SyntheticEventSeeder;
+use Illuminate\Console\Command;
 use Illuminate\Support\Facades\Artisan;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Schedule;
 
-Artisan::command('tds:sync-taboola {--from=} {--to=} {--idempotency-key=}', function (): void {
-    $fromOpt = $this->option('from');
-    $toOpt = $this->option('to');
+/**
+ * Runs cost sync for a given traffic source.
+ */
+$runTrafficSourceCostSync = function (Command $command, string $source): void {
+    $fromOpt = $command->option('from');
+    $toOpt = $command->option('to');
+    $sourceKey = strtolower(trim($source));
 
     $from = $fromOpt
         ? Carbon::parse((string) $fromOpt)->utc()->startOfDay()
@@ -32,30 +37,41 @@ Artisan::command('tds:sync-taboola {--from=} {--to=} {--idempotency-key=}', func
         ? Carbon::parse((string) $toOpt)->utc()->endOfDay()
         : now()->utc()->endOfDay();
 
-    $idemKey = $this->option('idempotency-key');
+    $idemKey = $command->option('idempotency-key');
     $idem = app(IngestionIdempotency::class);
-    $scope = IngestionIdempotencyKey::SCOPE_TABOOLA_COST_SYNC;
+    $scope = $sourceKey === 'taboola'
+        ? IngestionIdempotencyKey::SCOPE_TABOOLA_COST_SYNC
+        : 'cost_sync_'.$sourceKey;
 
     if (is_string($idemKey) && $idemKey !== '') {
         if (! $idem->tryAcquire($scope, $idemKey)) {
-            $this->warn('Duplicate idempotency key — skipping sync.');
+            $command->warn('Duplicate idempotency key — skipping sync.');
 
             return;
         }
     }
 
     try {
-        $run = app(TaboolaCostSyncService::class)->sync($from, $to);
-        app(Metrics::class)->increment('sync.taboola.success');
-        $this->info("Taboola sync finished: run_id={$run->id} status={$run->status} rows={$run->rows_upserted}");
+        $run = app(TrafficSourceCostSyncRegistry::class)->sync($sourceKey, $from, $to);
+        app(Metrics::class)->increment("sync.{$sourceKey}.success");
+        $command->info(ucfirst($sourceKey)." sync finished: run_id={$run->id} status={$run->status} rows={$run->rows_upserted}");
     } catch (\Throwable $e) {
         if (is_string($idemKey) && $idemKey !== '') {
             $idem->release($scope, $idemKey);
         }
-        app(Metrics::class)->increment('sync.taboola.errors');
+        app(Metrics::class)->increment("sync.{$sourceKey}.errors");
 
         throw $e;
     }
+};
+
+Artisan::command('tds:sync-cost {source=taboola} {--from=} {--to=} {--idempotency-key=}', function () use ($runTrafficSourceCostSync): void {
+    $source = (string) $this->argument('source');
+    $runTrafficSourceCostSync($this, $source);
+});
+
+Artisan::command('tds:sync-taboola {--from=} {--to=} {--idempotency-key=}', function () use ($runTrafficSourceCostSync): void {
+    $runTrafficSourceCostSync($this, 'taboola');
 });
 
 Schedule::job(new AggregateKpi15mJob)->everyFifteenMinutes()->withoutOverlapping();

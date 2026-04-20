@@ -22,4 +22,17 @@ return [
         'confidence_floor_percent' => (float) env('TDS_WINNER_CONFIDENCE_FLOOR_PERCENT', 1.0),
         'profit_tie_relative_epsilon' => (float) env('TDS_WINNER_PROFIT_TIE_EPSILON', 0.01),
     ],
+
+    /*
+    |--------------------------------------------------------------------------
+    | Cost Sync Service Registry
+    |--------------------------------------------------------------------------
+    |
+    | Class list for traffic source cost sync strategies. To add a new traffic
+    | source sync implementation, add its service class here.
+    |
+    */
+    'cost_sync_services' => [
+        \App\Services\Cost\TaboolaCostSyncService::class,
+    ],
 ];

@@ -2,7 +2,10 @@
 
 namespace App\Providers;
 
+use App\Contracts\TrafficSourceCostAdapterInterface;
 use App\Http\Middleware\RecordPublicRouteMetrics;
+use App\Services\Cost\TaboolaCostAdapter;
+use App\Services\Cost\TrafficSourceCostSyncRegistry;
 use App\Services\Ingestion\IngestionIdempotency;
 use App\Services\Observability\KpiSyncHeartbeat;
 use App\Services\Observability\Metrics;
@@ -25,6 +28,22 @@ class AppServiceProvider extends ServiceProvider
         $this->app->singleton(KpiSyncHeartbeat::class);
         $this->app->singleton(IngestionIdempotency::class);
         $this->app->singleton(RecordPublicRouteMetrics::class);
+        $this->app->bind(TrafficSourceCostAdapterInterface::class, TaboolaCostAdapter::class);
+        $this->app->singleton(TrafficSourceCostSyncRegistry::class, function ($app): TrafficSourceCostSyncRegistry {
+            /** @var array<int, class-string> $serviceClasses */
+            $serviceClasses = config('tds.cost_sync_services', []);
+            $services = [];
+
+            foreach ($serviceClasses as $serviceClass) {
+                if (!is_string($serviceClass) || $serviceClass === '') {
+                    continue;
+                }
+
+                $services[] = $app->make($serviceClass);
+            }
+
+            return new TrafficSourceCostSyncRegistry($services);
+        });
     }
 
     /**
