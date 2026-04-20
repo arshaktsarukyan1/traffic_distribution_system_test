@@ -4,7 +4,10 @@ import Link from "next/link";
 import { useEffect, useState } from "react";
 import { AdminShell } from "@/components/admin/AdminShell";
 import { fetchAllPages } from "@/lib/paginate";
-import { tdsFetch, tdsJson, TdsApiError } from "@/lib/tds-internal";
+import { api } from "@/lib/apiClient";
+import { ApiError } from "@/lib/apiError";
+import { reportApiError } from "@/lib/reportApiError";
+import { mapValidationErrors } from "@/utils/mapValidationErrors";
 
 type DomainRow = {
   id: number;
@@ -27,15 +30,17 @@ export default function DomainsPage() {
   const [name, setName] = useState("");
   const [status, setStatus] = useState<"pending" | "active" | "disabled">("pending");
   const [creating, setCreating] = useState(false);
+  const [fieldErrors, setFieldErrors] = useState<Record<string, string>>({});
 
   const load = async () => {
     setLoading(true);
     setError(null);
     try {
-      const all = await fetchAllPages<DomainRow>((page) => tdsJson(`v1/domains?page=${page}`));
+      const all = await fetchAllPages<DomainRow>((page) => api.get(`v1/domains?page=${page}`));
       setRows(all);
     } catch (e) {
-      setError(e instanceof TdsApiError ? e.message : "Failed to load domains");
+      reportApiError(e);
+      setError(ApiError.isApiError(e) ? e.message : "Failed to load domains");
     } finally {
       setLoading(false);
     }
@@ -53,21 +58,24 @@ export default function DomainsPage() {
     }
     setCreating(true);
     setError(null);
+    setFieldErrors({});
     try {
-      await tdsJson("v1/domains", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          name: trimmed,
-          status,
-          is_active: true,
-        }),
+      await api.post("v1/domains", {
+        name: trimmed,
+        status,
+        is_active: true,
       });
       setName("");
       setStatus("pending");
       await load();
     } catch (e) {
-      setError(e instanceof TdsApiError ? e.message : "Create failed");
+      reportApiError(e);
+      if (ApiError.isApiError(e)) {
+        setError(e.message);
+        setFieldErrors(mapValidationErrors(e));
+      } else {
+        setError("Create failed");
+      }
     } finally {
       setCreating(false);
     }
@@ -79,14 +87,11 @@ export default function DomainsPage() {
     }
     setError(null);
     try {
-      const res = await tdsFetch(`v1/domains/${id}`, { method: "DELETE" });
-      if (!res.ok) {
-        const body = await res.json().catch(() => ({}));
-        throw new TdsApiError("Delete failed", res.status, body);
-      }
+      await api.delete(`v1/domains/${id}`);
       await load();
     } catch (e) {
-      setError(e instanceof TdsApiError ? e.message : "Delete failed");
+      reportApiError(e);
+      setError(ApiError.isApiError(e) ? e.message : "Delete failed");
     }
   };
 
@@ -116,6 +121,9 @@ export default function DomainsPage() {
                 onChange={(e) => setName(e.target.value.trim())}
                 placeholder="track.example.com"
               />
+              {fieldErrors.name ? (
+                <span className="mt-1 block text-xs text-red-600">{fieldErrors.name}</span>
+              ) : null}
             </label>
             <label className="block text-sm">
               <span className="font-medium text-slate-700">Status</span>

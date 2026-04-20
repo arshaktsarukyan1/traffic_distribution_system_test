@@ -5,7 +5,9 @@ import { useEffect, useMemo, useState } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import { AdminShell } from "@/components/admin/AdminShell";
 import { FiltersBar, defaultFilters, type DashboardFilters } from "@/components/dashboard/FiltersBar";
-import { tdsJson, TdsApiError } from "@/lib/tds-internal";
+import { api } from "@/lib/apiClient";
+import { ApiError } from "@/lib/apiError";
+import { reportApiError } from "@/lib/reportApiError";
 import { toQuery } from "@/lib/query";
 
 type CampaignRow = {
@@ -70,7 +72,7 @@ export default function AbTestsPage() {
     (async () => {
       try {
         const [ts, list] = await Promise.all([
-          tdsJson<{ data: Array<{ id: number; name: string }> }>("v1/traffic-sources")
+          api.get<{ data: Array<{ id: number; name: string }> }>("v1/traffic-sources")
             .then((r) => r.data)
             .catch(() => []),
           (async () => {
@@ -78,7 +80,7 @@ export default function AbTestsPage() {
             let page = 1;
             let last = 1;
             do {
-              const chunk = await tdsJson<{ data: CampaignRow[]; last_page: number }>(`v1/campaigns?page=${page}`);
+              const chunk = await api.get<{ data: CampaignRow[]; last_page: number }>(`v1/campaigns?page=${page}`);
               collected.push(...chunk.data);
               last = chunk.last_page;
               page += 1;
@@ -125,10 +127,13 @@ export default function AbTestsPage() {
     setError(null);
     (async () => {
       try {
-        const res = await tdsJson<AbResponse>(`v1/reports/ab-tests${query}`);
+        const res = await api.get<AbResponse>(`v1/reports/ab-tests${query}`);
         if (!cancelled) setData(res.data);
       } catch (e) {
-        if (!cancelled) setError(e instanceof TdsApiError ? e.message : "Failed to load A/B report");
+        if (!cancelled) {
+          reportApiError(e);
+          setError(ApiError.isApiError(e) ? e.message : "Failed to load A/B report");
+        }
       } finally {
         if (!cancelled) setLoading(false);
       }

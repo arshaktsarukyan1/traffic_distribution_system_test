@@ -1,7 +1,9 @@
 "use client";
 
 import { useCallback, useEffect, useState } from "react";
-import { tdsFetch, tdsJson, TdsApiError } from "@/lib/tds-internal";
+import { api } from "@/lib/apiClient";
+import { ApiError } from "@/lib/apiError";
+import { reportApiError } from "@/lib/reportApiError";
 
 type OfferOpt = { id: number; name: string };
 
@@ -59,7 +61,7 @@ export function TargetingRulesSection({ campaignId, offers }: TargetingRulesSect
       let page = 1;
       let last = 1;
       do {
-        const chunk = await tdsJson<LaravelRulesPage>(
+        const chunk = await api.get<LaravelRulesPage>(
           `v1/campaigns/${campaignId}/targeting-rules?page=${page}`,
         );
         for (const r of chunk.data) {
@@ -79,7 +81,8 @@ export function TargetingRulesSection({ campaignId, offers }: TargetingRulesSect
       collected.sort((a, b) => a.priority - b.priority || a.id - b.id);
       setRules(collected);
     } catch (e) {
-      setError(e instanceof TdsApiError ? e.message : "Failed to load rules");
+      reportApiError(e);
+      setError(ApiError.isApiError(e) ? e.message : "Failed to load rules");
     } finally {
       setLoading(false);
     }
@@ -99,22 +102,19 @@ export function TargetingRulesSection({ campaignId, offers }: TargetingRulesSect
       return;
     }
     try {
-      await tdsJson(`v1/campaigns/${campaignId}/targeting-rules`, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          offer_id: form.offer_id,
-          country_code: form.country_code.trim() || null,
-          region: form.region.trim() || null,
-          device_type: form.device_type || null,
-          priority: form.priority,
-          is_active: form.is_active,
-        }),
+      await api.post(`v1/campaigns/${campaignId}/targeting-rules`, {
+        offer_id: form.offer_id,
+        country_code: form.country_code.trim() || null,
+        region: form.region.trim() || null,
+        device_type: form.device_type || null,
+        priority: form.priority,
+        is_active: form.is_active,
       });
       setForm(emptyForm());
       await load();
     } catch (e) {
-      setError(e instanceof TdsApiError ? e.message : "Failed to create rule");
+      reportApiError(e);
+      setError(ApiError.isApiError(e) ? e.message : "Failed to create rule");
     }
   };
 
@@ -128,23 +128,20 @@ export function TargetingRulesSection({ campaignId, offers }: TargetingRulesSect
       return;
     }
     try {
-      await tdsJson(`v1/campaigns/${campaignId}/targeting-rules/${editingId}`, {
-        method: "PATCH",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          offer_id: editDraft.offer_id,
-          country_code: editDraft.country_code.trim() || null,
-          region: editDraft.region.trim() || null,
-          device_type: editDraft.device_type || null,
-          priority: editDraft.priority,
-          is_active: editDraft.is_active,
-        }),
+      await api.patch(`v1/campaigns/${campaignId}/targeting-rules/${editingId}`, {
+        offer_id: editDraft.offer_id,
+        country_code: editDraft.country_code.trim() || null,
+        region: editDraft.region.trim() || null,
+        device_type: editDraft.device_type || null,
+        priority: editDraft.priority,
+        is_active: editDraft.is_active,
       });
       setEditingId(null);
       setEditDraft(null);
       await load();
     } catch (e) {
-      setError(e instanceof TdsApiError ? e.message : "Failed to update rule");
+      reportApiError(e);
+      setError(ApiError.isApiError(e) ? e.message : "Failed to update rule");
     }
   };
 
@@ -157,16 +154,11 @@ export function TargetingRulesSection({ campaignId, offers }: TargetingRulesSect
     }
     setError(null);
     try {
-      const res = await tdsFetch(`v1/campaigns/${campaignId}/targeting-rules/${id}`, {
-        method: "DELETE",
-      });
-      if (!res.ok) {
-        const body = await res.json().catch(() => ({}));
-        throw new TdsApiError("Delete failed", res.status, body);
-      }
+      await api.delete(`v1/campaigns/${campaignId}/targeting-rules/${id}`);
       await load();
     } catch (e) {
-      setError(e instanceof TdsApiError ? e.message : "Failed to delete");
+      reportApiError(e);
+      setError(ApiError.isApiError(e) ? e.message : "Failed to delete");
     }
   };
 

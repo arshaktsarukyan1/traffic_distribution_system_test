@@ -85,7 +85,6 @@ async function proxy(req: NextRequest, pathSegments: string[]): Promise<Response
   const joined = pathSegments.join("/");
   const src = new URL(req.url);
   const target = `${backend}/api/${joined}${src.search}`;
-console.log("target", target);
   const headers = new Headers();
   headers.set("Authorization", `Bearer ${token}`);
   headers.set("Accept", "application/json");

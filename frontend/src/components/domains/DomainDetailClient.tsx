@@ -4,7 +4,9 @@ import Link from "next/link";
 import { useCallback, useEffect, useState } from "react";
 import { AdminShell } from "@/components/admin/AdminShell";
 import { fetchAllPages } from "@/lib/paginate";
-import { tdsJson, TdsApiError } from "@/lib/tds-internal";
+import { api } from "@/lib/apiClient";
+import { ApiError } from "@/lib/apiError";
+import { reportApiError } from "@/lib/reportApiError";
 
 type CampaignBrief = {
   id: number;
@@ -39,13 +41,14 @@ export function DomainDetailClient({ domainId }: { domainId: number }) {
     setLoading(true);
     setError(null);
     try {
-      const res = await tdsJson<{ data: DomainDetail }>(`v1/domains/${domainId}`);
+      const res = await api.get<{ data: DomainDetail }>(`v1/domains/${domainId}`);
       setDomain(res.data);
       setName(res.data.name);
       setStatus(res.data.status as typeof status);
       setIsActive(res.data.is_active);
     } catch (e) {
-      setError(e instanceof TdsApiError ? e.message : "Failed to load domain");
+      reportApiError(e);
+      setError(ApiError.isApiError(e) ? e.message : "Failed to load domain");
       setDomain(null);
     } finally {
       setLoading(false);
@@ -60,9 +63,7 @@ export function DomainDetailClient({ domainId }: { domainId: number }) {
     let cancelled = false;
     (async () => {
       try {
-        const list = await fetchAllPages<CampaignBrief>((page) =>
-          tdsJson(`v1/campaigns?page=${page}`),
-        );
+        const list = await fetchAllPages<CampaignBrief>((page) => api.get(`v1/campaigns?page=${page}`));
         if (!cancelled) setAllCampaigns(list);
       } catch {
         if (!cancelled) setAllCampaigns([]);
@@ -77,18 +78,15 @@ export function DomainDetailClient({ domainId }: { domainId: number }) {
     setSaving(true);
     setError(null);
     try {
-      await tdsJson(`v1/domains/${domainId}`, {
-        method: "PATCH",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          name: name.trim().toLowerCase(),
-          status,
-          is_active: isActive,
-        }),
+      await api.patch(`v1/domains/${domainId}`, {
+        name: name.trim().toLowerCase(),
+        status,
+        is_active: isActive,
       });
       await loadDomain();
     } catch (e) {
-      setError(e instanceof TdsApiError ? e.message : "Save failed");
+      reportApiError(e);
+      setError(ApiError.isApiError(e) ? e.message : "Save failed");
     } finally {
       setSaving(false);
     }
@@ -102,16 +100,13 @@ export function DomainDetailClient({ domainId }: { domainId: number }) {
     setError(null);
     try {
       for (const cid of selectedIds) {
-        await tdsJson(`v1/campaigns/${cid}`, {
-          method: "PATCH",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ domain_id: domainId }),
-        });
+        await api.patch(`v1/campaigns/${cid}`, { domain_id: domainId });
       }
       setSelectedIds(new Set());
       await loadDomain();
     } catch (e) {
-      setError(e instanceof TdsApiError ? e.message : "Assign failed");
+      reportApiError(e);
+      setError(ApiError.isApiError(e) ? e.message : "Assign failed");
     } finally {
       setSaving(false);
     }
@@ -121,14 +116,11 @@ export function DomainDetailClient({ domainId }: { domainId: number }) {
     setSaving(true);
     setError(null);
     try {
-      await tdsJson(`v1/campaigns/${campaignId}`, {
-        method: "PATCH",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ domain_id: null }),
-      });
+      await api.patch(`v1/campaigns/${campaignId}`, { domain_id: null });
       await loadDomain();
     } catch (e) {
-      setError(e instanceof TdsApiError ? e.message : "Update failed");
+      reportApiError(e);
+      setError(ApiError.isApiError(e) ? e.message : "Update failed");
     } finally {
       setSaving(false);
     }

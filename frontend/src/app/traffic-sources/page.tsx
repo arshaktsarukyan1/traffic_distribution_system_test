@@ -3,7 +3,9 @@
 import Link from "next/link";
 import { useEffect, useState } from "react";
 import { AdminShell } from "@/components/admin/AdminShell";
-import { tdsJson, TdsApiError } from "@/lib/tds-internal";
+import { api } from "@/lib/apiClient";
+import { ApiError } from "@/lib/apiError";
+import { reportApiError } from "@/lib/reportApiError";
 
 type TrafficSource = { id: number; name: string; slug: string; is_active: boolean };
 
@@ -16,10 +18,13 @@ export default function TrafficSourcesPage() {
     let cancelled = false;
     (async () => {
       try {
-        const res = await tdsJson<{ data: TrafficSource[] }>("v1/traffic-sources");
+        const res = await api.get<{ data: TrafficSource[] }>("v1/traffic-sources");
         if (!cancelled) setRows(res.data);
       } catch (e) {
-        if (!cancelled) setError(e instanceof TdsApiError ? e.message : "Failed to load traffic sources");
+        if (!cancelled) {
+          reportApiError(e);
+          setError(ApiError.isApiError(e) ? e.message : "Failed to load traffic sources");
+        }
       } finally {
         if (!cancelled) setLoading(false);
       }

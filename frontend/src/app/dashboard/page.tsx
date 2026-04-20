@@ -5,7 +5,9 @@ import { useRouter, useSearchParams } from "next/navigation";
 import { AdminShell } from "@/components/admin/AdminShell";
 import { FiltersBar, defaultFilters, type DashboardFilters } from "@/components/dashboard/FiltersBar";
 import { KpiCards, type KpiDelta, type KpiTotals } from "@/components/dashboard/KpiCards";
-import { tdsJson, TdsApiError } from "@/lib/tds-internal";
+import { api } from "@/lib/apiClient";
+import { ApiError } from "@/lib/apiError";
+import { reportApiError } from "@/lib/reportApiError";
 import { toQuery } from "@/lib/query";
 
 type TrafficSource = { id: number; name: string };
@@ -55,7 +57,7 @@ export default function DashboardPage() {
     let cancelled = false;
     (async () => {
       try {
-        const res = await tdsJson<{ data: TrafficSource[] }>("v1/traffic-sources");
+        const res = await api.get<{ data: TrafficSource[] }>("v1/traffic-sources");
         if (!cancelled) setTrafficSources(res.data);
       } catch {
         // non-fatal; keep filter dropdown empty
@@ -82,10 +84,13 @@ export default function DashboardPage() {
     setError(null);
     (async () => {
       try {
-        const res = await tdsJson<ReportKpiResponse>(`v1/reports/kpi${query}`);
+        const res = await api.get<ReportKpiResponse>(`v1/reports/kpi${query}`);
         if (!cancelled) setReport(res.data);
       } catch (e) {
-        if (!cancelled) setError(e instanceof TdsApiError ? e.message : "Failed to load KPI report");
+        if (!cancelled) {
+          reportApiError(e);
+          setError(ApiError.isApiError(e) ? e.message : "Failed to load KPI report");
+        }
       } finally {
         if (!cancelled) setLoading(false);
       }

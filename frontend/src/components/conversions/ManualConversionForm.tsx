@@ -5,7 +5,9 @@ import { useEffect, useState } from "react";
 import { useSearchParams } from "next/navigation";
 import { AdminShell } from "@/components/admin/AdminShell";
 import { fetchAllPages } from "@/lib/paginate";
-import { tdsJson, TdsApiError } from "@/lib/tds-internal";
+import { api } from "@/lib/apiClient";
+import { ApiError } from "@/lib/apiError";
+import { reportApiError } from "@/lib/reportApiError";
 
 type CampaignRow = { id: number; name: string; slug: string };
 type Lander = { id: number; name: string };
@@ -50,9 +52,9 @@ export function ManualConversionForm() {
     (async () => {
       try {
         const [c, l, o] = await Promise.all([
-          fetchAllPages<CampaignRow>((page) => tdsJson(`v1/campaigns?page=${page}`)),
-          fetchAllPages<Lander>((page) => tdsJson(`v1/landers?page=${page}`)),
-          fetchAllPages<Offer>((page) => tdsJson(`v1/offers?page=${page}`)),
+          fetchAllPages<CampaignRow>((page) => api.get(`v1/campaigns?page=${page}`)),
+          fetchAllPages<Lander>((page) => api.get(`v1/landers?page=${page}`)),
+          fetchAllPages<Offer>((page) => api.get(`v1/offers?page=${page}`)),
         ]);
         if (!cancelled) {
           setCampaigns(c);
@@ -61,7 +63,8 @@ export function ManualConversionForm() {
         }
       } catch (e) {
         if (!cancelled) {
-          setError(e instanceof TdsApiError ? e.message : "Failed to load form data");
+          reportApiError(e);
+          setError(ApiError.isApiError(e) ? e.message : "Failed to load form data");
         }
       } finally {
         if (!cancelled) setLoadingRef(false);
@@ -100,11 +103,7 @@ export function ManualConversionForm() {
     if (source.trim()) body.source = source.trim();
 
     try {
-      const res = await tdsJson<{ data: { id: number } }>("v1/conversions/manual", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(body),
-      });
+      const res = await api.post<{ data: { id: number } }>("v1/conversions/manual", body);
       setMessage(`Conversion #${res.data.id} recorded. KPI aggregates update after the next aggregation run.`);
       setAmount("");
       setClickUuid("");
@@ -113,7 +112,8 @@ export function ManualConversionForm() {
       setNote("");
       setConvertedAt(toDatetimeLocalValue(new Date()));
     } catch (e) {
-      setError(e instanceof TdsApiError ? e.message : "Submit failed");
+      reportApiError(e);
+      setError(ApiError.isApiError(e) ? e.message : "Submit failed");
     } finally {
       setSubmitting(false);
     }

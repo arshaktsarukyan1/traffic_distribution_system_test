@@ -6,7 +6,9 @@ import { useRouter, useSearchParams } from "next/navigation";
 import { AdminShell } from "@/components/admin/AdminShell";
 import { FiltersBar, defaultFilters, type DashboardFilters } from "@/components/dashboard/FiltersBar";
 import { KpiCards, type KpiDelta, type KpiTotals } from "@/components/dashboard/KpiCards";
-import { tdsJson, TdsApiError } from "@/lib/tds-internal";
+import { api } from "@/lib/apiClient";
+import { ApiError } from "@/lib/apiError";
+import { reportApiError } from "@/lib/reportApiError";
 import { toQuery } from "@/lib/query";
 
 type Campaign = { id: number; name: string; slug: string; status: string; traffic_source_id: number };
@@ -52,15 +54,18 @@ export function CampaignDetailsView({ campaignId }: { campaignId: number }) {
     (async () => {
       try {
         const [ts, camp] = await Promise.all([
-          tdsJson<{ data: TrafficSource[] }>("v1/traffic-sources").then((r) => r.data).catch(() => [] as TrafficSource[]),
-          tdsJson<{ data: Campaign }>(`v1/campaigns/${campaignId}`).then((r) => r.data),
+          api.get<{ data: TrafficSource[] }>("v1/traffic-sources").then((r) => r.data).catch(() => [] as TrafficSource[]),
+          api.get<{ data: Campaign }>(`v1/campaigns/${campaignId}`).then((r) => r.data),
         ]);
         if (!cancelled) {
           setTrafficSources(ts);
           setCampaign(camp);
         }
       } catch (e) {
-        if (!cancelled) setError(e instanceof TdsApiError ? e.message : "Failed to load campaign");
+        if (!cancelled) {
+          reportApiError(e);
+          setError(ApiError.isApiError(e) ? e.message : "Failed to load campaign");
+        }
       }
     })();
     return () => {
@@ -85,10 +90,13 @@ export function CampaignDetailsView({ campaignId }: { campaignId: number }) {
     setError(null);
     (async () => {
       try {
-        const res = await tdsJson<ReportKpiResponse>(`v1/reports/kpi${query}`);
+        const res = await api.get<ReportKpiResponse>(`v1/reports/kpi${query}`);
         if (!cancelled) setReport(res.data);
       } catch (e) {
-        if (!cancelled) setError(e instanceof TdsApiError ? e.message : "Failed to load KPI report");
+        if (!cancelled) {
+          reportApiError(e);
+          setError(ApiError.isApiError(e) ? e.message : "Failed to load KPI report");
+        }
       } finally {
         if (!cancelled) setLoading(false);
       }

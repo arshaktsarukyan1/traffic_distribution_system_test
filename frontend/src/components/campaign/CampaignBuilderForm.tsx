@@ -9,7 +9,9 @@ import { WeightSplitEditor, type SplitRow } from "@/components/campaign/WeightSp
 import { fetchAllPages } from "@/lib/paginate";
 import { clickUrl, redirectUrl, trackerScriptTag, type DomainRow } from "@/lib/tracking-urls";
 import { activeSum, slugify } from "@/lib/campaign-form";
-import { tdsJson, TdsApiError } from "@/lib/tds-internal";
+import { api } from "@/lib/apiClient";
+import { ApiError } from "@/lib/apiError";
+import { reportApiError } from "@/lib/reportApiError";
 
 type TrafficSource = { id: number; name: string; slug: string };
 type Lander = { id: number; name: string; url: string };
@@ -98,7 +100,7 @@ export function CampaignBuilderForm({ campaignId }: CampaignBuilderFormProps) {
     setLoading(true);
     setError(null);
     try {
-      const { data } = await tdsJson<{ data: CampaignPayload }>(`v1/campaigns/${campaignId}`);
+      const { data } = await api.get<{ data: CampaignPayload }>(`v1/campaigns/${campaignId}`);
       setId(data.id);
       setName(data.name);
       setSlug(data.slug);
@@ -125,7 +127,8 @@ export function CampaignBuilderForm({ campaignId }: CampaignBuilderFormProps) {
       );
       setSlugTouched(true);
     } catch (e) {
-      setError(e instanceof TdsApiError ? e.message : "Failed to load campaign");
+      reportApiError(e);
+      setError(ApiError.isApiError(e) ? e.message : "Failed to load campaign");
     } finally {
       setLoading(false);
     }
@@ -137,10 +140,10 @@ export function CampaignBuilderForm({ campaignId }: CampaignBuilderFormProps) {
     (async () => {
       try {
         const [d, l, o, ts] = await Promise.all([
-          fetchAllPages<DomainRow>((page) => tdsJson(`v1/domains?page=${page}`)),
-          fetchAllPages<Lander>((page) => tdsJson(`v1/landers?page=${page}`)),
-          fetchAllPages<Offer>((page) => tdsJson(`v1/offers?page=${page}`)),
-          tdsJson<{ data: TrafficSource[] }>("v1/traffic-sources").then((r) => r.data),
+          fetchAllPages<DomainRow>((page) => api.get(`v1/domains?page=${page}`)),
+          fetchAllPages<Lander>((page) => api.get(`v1/landers?page=${page}`)),
+          fetchAllPages<Offer>((page) => api.get(`v1/offers?page=${page}`)),
+          api.get<{ data: TrafficSource[] }>("v1/traffic-sources").then((r) => r.data),
         ]);
         if (cancelled) {
           return;
@@ -151,7 +154,8 @@ export function CampaignBuilderForm({ campaignId }: CampaignBuilderFormProps) {
         setTrafficSources(ts);
       } catch (e) {
         if (!cancelled) {
-          setError(e instanceof TdsApiError ? e.message : "Failed to load reference data");
+          reportApiError(e);
+          setError(ApiError.isApiError(e) ? e.message : "Failed to load reference data");
         }
       } finally {
         if (!cancelled) {
@@ -215,23 +219,16 @@ export function CampaignBuilderForm({ campaignId }: CampaignBuilderFormProps) {
 
     try {
       if (isNew || !id) {
-        const created = await tdsJson<{ data: CampaignPayload }>("v1/campaigns", {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify(body),
-        });
+        const created = await api.post<{ data: CampaignPayload }>("v1/campaigns", body);
         router.push(`/campaigns/${created.data.id}/edit`);
         router.refresh();
         return;
       }
-      await tdsJson(`v1/campaigns/${id}`, {
-        method: "PATCH",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(body),
-      });
+      await api.patch(`v1/campaigns/${id}`, body);
       await loadCampaign();
     } catch (e) {
-      setError(e instanceof TdsApiError ? e.message : "Save failed");
+      reportApiError(e);
+      setError(ApiError.isApiError(e) ? e.message : "Save failed");
     } finally {
       setSaving(false);
     }

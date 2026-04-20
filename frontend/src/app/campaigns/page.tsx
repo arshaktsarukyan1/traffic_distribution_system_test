@@ -3,7 +3,9 @@
 import Link from "next/link";
 import { useEffect, useState } from "react";
 import { AdminShell } from "@/components/admin/AdminShell";
-import { tdsJson, TdsApiError } from "@/lib/tds-internal";
+import { api } from "@/lib/apiClient";
+import { ApiError } from "@/lib/apiError";
+import { reportApiError } from "@/lib/reportApiError";
 
 type ListedCampaign = {
   id: number;
@@ -32,7 +34,7 @@ export default function CampaignsPage() {
         let page = 1;
         let last = 1;
         do {
-          const chunk = await tdsJson<CampaignsPageJson>(`v1/campaigns?page=${page}`);
+          const chunk = await api.get<CampaignsPageJson>(`v1/campaigns?page=${page}`);
           collected.push(...chunk.data);
           last = chunk.last_page;
           page += 1;
@@ -42,7 +44,8 @@ export default function CampaignsPage() {
         }
       } catch (e) {
         if (!cancelled) {
-          setError(e instanceof TdsApiError ? e.message : "Failed to load campaigns");
+          reportApiError(e);
+          setError(ApiError.isApiError(e) ? e.message : "Failed to load campaigns");
         }
       } finally {
         if (!cancelled) {
