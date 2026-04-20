@@ -13,6 +13,17 @@ class DomainApiShowTest extends TestCase
 {
     use RefreshDatabase;
 
+    public function test_domains_show_missing_returns_structured_json(): void
+    {
+        $this->withHeaders(['Authorization' => 'Bearer test-internal-token'])
+            ->getJson('/api/v1/domains/999999999')
+            ->assertNotFound()
+            ->assertJsonStructure(['message', 'error', 'correlation_id'])
+            ->assertJsonPath('error', 'not_found')
+            ->assertJsonPath('message', 'Domain was not found.')
+            ->assertHeader('X-Correlation-Id');
+    }
+
     public function test_domains_show_includes_linked_campaigns(): void
     {
         $domain = Domain::query()->create([

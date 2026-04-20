@@ -5,6 +5,8 @@ namespace App\Http\Controllers\Public;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Public\TrackerEventRequest;
 use App\Services\Public\PublicTrackerService;
+use App\Support\ApiError;
+use App\Support\ApiErrorCode;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Response;
 
@@ -32,7 +34,7 @@ class TrackerController extends Controller
         $result = $this->trackerService->recordEvent($payload, $request);
 
         if ($result === null) {
-            return response()->json(['message' => 'Campaign not found'], 404);
+            return ApiError::respond('Campaign not found.', 404, [], $request, ApiErrorCode::NotFound);
         }
 
         return response()

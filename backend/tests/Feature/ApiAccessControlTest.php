@@ -13,7 +13,10 @@ class ApiAccessControlTest extends TestCase
 
     public function test_protected_routes_require_internal_token(): void
     {
-        $this->getJson('/api/v1/domains')->assertUnauthorized();
+        $this->getJson('/api/v1/domains')
+            ->assertUnauthorized()
+            ->assertJsonStructure(['message', 'error', 'correlation_id'])
+            ->assertJsonPath('error', 'unauthenticated');
     }
 
     public function test_public_tracking_route_works_without_login(): void

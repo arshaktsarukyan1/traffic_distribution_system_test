@@ -5,6 +5,8 @@ namespace App\Http\Controllers\Api\V1;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Api\V1\StoreManualConversionRequest;
 use App\Services\Conversion\ManualConversionService;
+use App\Support\ApiError;
+use App\Support\ApiErrorCode;
 use Illuminate\Http\JsonResponse;
 
 class ConversionController extends Controller
@@ -18,9 +20,13 @@ class ConversionController extends Controller
         $result = $this->manualConversionService->createFromValidated($request->validated());
 
         if (isset($result['error'])) {
-            return response()->json([
-                'message' => $result['error'],
-            ], 422);
+            return ApiError::respond(
+                $result['error'],
+                422,
+                [],
+                $request,
+                ApiErrorCode::ManualConversionFailed,
+            );
         }
 
         $conversion = $result['conversion'];

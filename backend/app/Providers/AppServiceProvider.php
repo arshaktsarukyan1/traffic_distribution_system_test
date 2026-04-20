@@ -6,10 +6,13 @@ use App\Http\Middleware\RecordPublicRouteMetrics;
 use App\Services\Ingestion\IngestionIdempotency;
 use App\Services\Observability\KpiSyncHeartbeat;
 use App\Services\Observability\Metrics;
+use App\Support\ApiError;
 use Illuminate\Cache\RateLimiting\Limit;
+use Illuminate\Foundation\Exceptions\Handler;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\RateLimiter;
 use Illuminate\Support\ServiceProvider;
+use Symfony\Component\HttpFoundation\Response as SymfonyResponse;
 
 class AppServiceProvider extends ServiceProvider
 {
@@ -56,5 +59,11 @@ class AppServiceProvider extends ServiceProvider
             return Limit::perMinute((int) config('tds.tracker_script_rate_limit_per_minute', 240))
                 ->by((string) $request->ip());
         });
+
+        $this->app->make(Handler::class)->respondUsing(
+            function (SymfonyResponse $response, \Throwable $e, Request $request): SymfonyResponse {
+                return ApiError::finalizeExceptionJsonEnvelope($response, $e, $request);
+            }
+        );
     }
 }
