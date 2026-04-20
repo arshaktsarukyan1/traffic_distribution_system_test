@@ -11,7 +11,7 @@ class ApiAccessControlTest extends TestCase
 {
     use RefreshDatabase;
 
-    public function test_protected_routes_require_internal_token(): void
+    public function test_protected_routes_require_auth_token(): void
     {
         $this->getJson('/api/v1/domains')
             ->assertUnauthorized()

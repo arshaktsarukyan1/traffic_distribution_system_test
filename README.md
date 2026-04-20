@@ -39,6 +39,7 @@ This repository is a monorepo with a Laravel API backend and a Next.js admin fro
 ## Core Capabilities
 
 - Domain, campaign, lander, and offer management via internal API endpoints
+- Dynamic user authentication with login/registration and personal access tokens
 - Campaign lifecycle controls (`activate`, `pause`, `archive`)
 - Public redirect and click tracking endpoints
 - Tracking script/event ingestion
@@ -80,6 +81,12 @@ Services started:
 - `db` (MySQL, exposed as `localhost:3307`)
 - `redis` (Redis, exposed as `localhost:6379`)
 
+### 2.1) Run database migrations
+
+```bash
+docker compose exec backend php artisan migrate
+```
+
 ### 3) Verify the stack
 
 Frontend:
@@ -94,6 +101,12 @@ Health endpoint:
 curl -i http://localhost/api/health
 ```
 
+### 4) Authenticate in the dashboard
+
+- Open `http://localhost/auth`
+- Register a user (or log in with an existing user)
+- After authentication, the frontend stores your bearer token and sends it to `/api/internal/*` automatically
+
 ## Environment Variables
 
 ### Root (`.env`)
@@ -107,7 +120,7 @@ Important keys:
 - `APP_ENV`, `APP_DEBUG`, `APP_URL`
 - `DB_CONNECTION`, `DB_HOST`, `DB_PORT`, `DB_DATABASE`, `DB_USERNAME`, `DB_PASSWORD`
 - `CACHE_STORE`, `QUEUE_CONNECTION`, `REDIS_HOST`
-- `INTERNAL_API_TOKEN` (must match frontend token for internal API access)
+- `AUTH_TOKEN_TTL_MINUTES` (lifetime for dynamic personal access tokens)
 - `SHOPIFY_WEBHOOK_SECRET`
 
 ### Frontend (`frontend/.env`)
@@ -115,8 +128,17 @@ Important keys:
 Important keys:
 
 - `TDS_BACKEND_URL` (server-side URL to Laravel API)
-- `TDS_INTERNAL_API_TOKEN` (same value as backend `INTERNAL_API_TOKEN`)
 - `NEXT_PUBLIC_TDS_PUBLIC_ORIGIN` (browser-facing origin used in tracking URL generation)
+
+## Authentication Model
+
+- Backend protected API endpoints under `/api/v1/*` require dynamic bearer authentication.
+- Use:
+  - `POST /api/v1/auth/register`
+  - `POST /api/v1/auth/login`
+  - `POST /api/v1/auth/logout`
+  - `GET /api/v1/me`
+- Frontend route `/auth` handles login/registration and stores the issued token for subsequent API calls.
 
 ## Local Development Workflows
 
@@ -177,9 +199,12 @@ The CI workflow runs:
 - `POST /api/v1/events`
 - `POST /api/v1/webhooks/shopify/orders`
 
-### Internal (`/api/v1`, protected by internal auth middleware)
+### Internal (`/api/v1`, protected by dynamic bearer token auth)
 
 - `GET /me`
+- `POST /auth/register`
+- `POST /auth/login`
+- `POST /auth/logout`
 - `GET|POST|PATCH|DELETE /domains...`
 - `GET|POST|PATCH /campaigns...`
 - `POST /campaigns/{id}/activate|pause|archive`
@@ -193,7 +218,7 @@ The CI workflow runs:
 
 ## Troubleshooting
 
-- If backend requests fail with unauthorized errors, ensure `TDS_INTERNAL_API_TOKEN` and `INTERNAL_API_TOKEN` match.
+- If backend requests fail with unauthorized errors, log in via `/auth` and ensure a valid bearer token is present.
 - If MySQL is unavailable, check container health: `docker compose ps`.
 - If queue-dependent flows are delayed, verify `worker` container is running.
 - If scheduled jobs are missing, verify `scheduler` container is running.

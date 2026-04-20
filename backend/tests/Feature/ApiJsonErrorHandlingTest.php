@@ -2,9 +2,11 @@
 
 namespace Tests\Feature;
 
+use App\Models\PersonalAccessToken;
+use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
-use Illuminate\Support\Facades\Config;
 use Illuminate\Support\Facades\Route;
+use Illuminate\Support\Str;
 use Tests\TestCase;
 
 class ApiJsonErrorHandlingTest extends TestCase
@@ -13,7 +15,21 @@ class ApiJsonErrorHandlingTest extends TestCase
 
     private function authHeaders(): array
     {
-        return ['Authorization' => 'Bearer test-internal-token'];
+        $token = Str::random(80);
+        $user = User::query()->create([
+            'name' => 'Test User',
+            'email' => 'test+'.Str::random(8).'@example.com',
+            'password' => 'password-123456',
+        ]);
+
+        PersonalAccessToken::query()->create([
+            'user_id' => $user->id,
+            'name' => 'test-suite',
+            'token_hash' => hash('sha256', $token),
+            'expires_at' => now()->addHour(),
+        ]);
+
+        return ['Authorization' => 'Bearer '.$token];
     }
 
     public function test_401_json_envelope_and_correlation_header(): void
@@ -30,7 +46,7 @@ class ApiJsonErrorHandlingTest extends TestCase
 
     public function test_403_json_envelope(): void
     {
-        Route::middleware(['api', 'internal.api'])->get('/api/v1/__test_403', fn () => abort(403, 'Not allowed for this test.'));
+        Route::middleware(['api', 'auth.token'])->get('/api/v1/__test_403', fn () => abort(403, 'Not allowed for this test.'));
 
         $this->withHeaders($this->authHeaders())
             ->getJson('/api/v1/__test_403')
@@ -76,7 +92,7 @@ class ApiJsonErrorHandlingTest extends TestCase
     {
         config(['app.debug' => false]);
 
-        Route::middleware(['api', 'internal.api'])->get('/api/v1/__test_500', function (): void {
+        Route::middleware(['api', 'auth.token'])->get('/api/v1/__test_500', function (): void {
             throw new \RuntimeException('forced test exception');
         });
 
@@ -87,22 +103,5 @@ class ApiJsonErrorHandlingTest extends TestCase
             ->assertJsonStructure(['message', 'error', 'correlation_id'])
             ->assertJsonPath('error', 'server_error')
             ->assertJsonPath('message', 'Server Error');
-    }
-
-    public function test_middleware_returns_503_when_internal_token_not_configured(): void
-    {
-        $previous = config('tds.internal_api_token');
-        Config::set('tds.internal_api_token', '');
-
-        try {
-            $this->withHeaders($this->authHeaders())
-                ->getJson('/api/v1/domains')
-                ->assertStatus(503)
-                ->assertJsonPath('error', 'service_unavailable')
-                ->assertJsonPath('message', 'Internal API token is not configured.')
-                ->assertJsonStructure(['message', 'error', 'correlation_id']);
-        } finally {
-            Config::set('tds.internal_api_token', $previous);
-        }
     }
 }

@@ -1,11 +1,10 @@
 "use client";
 
 /**
- * Demonstrates validation mapping + ApiError handling.
- * Uses an intentional invalid POST to `/v1/domains` so Laravel returns 422 with `errors` / `error_fields`.
+ * Demonstrates login with dynamic PAT + ApiError handling.
  */
 import { useState } from "react";
-import { api } from "@/lib/apiClient";
+import { loginWithPassword } from "@/lib/authClient";
 import { ApiError } from "@/lib/apiError";
 import { mapValidationErrors } from "@/utils/mapValidationErrors";
 import { useApiErrorReporting } from "@/contexts/ApiErrorReportingProvider";
@@ -23,12 +22,11 @@ export function LoginFormExample() {
     setFieldErrors({});
     setMessage(null);
     try {
-      // Demo only: invalid payload → 422 + validation shape (replace with real auth POST).
-      await api.post("v1/domains", {
-        name: email.trim() || undefined,
-        status: password.trim() || undefined,
+      const result = await loginWithPassword({
+        email: email.trim(),
+        password: password.trim(),
       });
-      setMessage("OK");
+      setMessage(`Logged in as ${result.user.email}`);
     } catch (e) {
       report(e);
       if (ApiError.isApiError(e)) {
@@ -52,9 +50,9 @@ export function LoginFormExample() {
         void submit();
       }}
     >
-      <p className="font-medium text-slate-800">Example form (422 validation demo)</p>
+      <p className="font-medium text-slate-800">Example form (dynamic token login)</p>
       <label className="form-field">
-        <span className="form-label">Email (maps to domain `name` in demo)</span>
+        <span className="form-label">Email</span>
         <input
           className="form-control"
           value={email}
@@ -64,7 +62,7 @@ export function LoginFormExample() {
         {fieldErrors.name ? <span className="text-red-600">{fieldErrors.name}</span> : null}
       </label>
       <label className="form-field">
-        <span className="form-label">Password (maps to `status` in demo)</span>
+        <span className="form-label">Password</span>
         <input
           type="password"
           className="form-control"
@@ -72,9 +70,8 @@ export function LoginFormExample() {
           onChange={(ev) => setPassword(ev.target.value)}
           autoComplete="current-password"
         />
-        {fieldErrors.status ? <span className="text-red-600">{fieldErrors.status}</span> : null}
+        {fieldErrors.password ? <span className="text-red-600">{fieldErrors.password}</span> : null}
       </label>
-      {fieldErrors.email ? <span className="text-red-600">{fieldErrors.email}</span> : null}
       {message ? <p className="text-slate-700">{message}</p> : null}
       <button
         type="submit"

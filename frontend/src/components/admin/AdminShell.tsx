@@ -1,9 +1,10 @@
 "use client";
 
 import Link from "next/link";
-import { usePathname } from "next/navigation";
+import { usePathname, useRouter } from "next/navigation";
 import type { ReactNode } from "react";
 import { useId, useState } from "react";
+import { logoutCurrentSession } from "@/lib/authClient";
 
 const navItems = [
   { href: "/dashboard", label: "Dashboard" },
@@ -22,8 +23,20 @@ type AdminShellProps = {
 
 export function AdminShell({ children, title, topbarRight }: AdminShellProps) {
   const pathname = usePathname();
+  const router = useRouter();
   const [mobileOpen, setMobileOpen] = useState(false);
   const sidebarId = useId();
+  const [loggingOut, setLoggingOut] = useState(false);
+
+  const onLogout = async () => {
+    setLoggingOut(true);
+    try {
+      await logoutCurrentSession();
+    } finally {
+      setLoggingOut(false);
+      router.replace("/auth");
+    }
+  };
 
   return (
     <div className="flex min-h-screen bg-gradient-to-b from-slate-100 to-slate-50 text-slate-950">
@@ -107,6 +120,14 @@ export function AdminShell({ children, title, topbarRight }: AdminShellProps) {
           {topbarRight ? (
             <div className="flex shrink-0 items-center gap-2 pr-1 md:pr-2">{topbarRight}</div>
           ) : null}
+          <button
+            type="button"
+            onClick={() => void onLogout()}
+            disabled={loggingOut}
+            className="rounded-md border border-slate-300 bg-white px-3 py-2 text-sm font-medium text-slate-800 hover:bg-slate-100 disabled:opacity-50"
+          >
+            {loggingOut ? "Signing out..." : "Sign out"}
+          </button>
         </header>
 
         <main id="main-content" className="flex-1 p-4 md:p-6" tabIndex={-1}>

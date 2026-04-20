@@ -20,7 +20,6 @@ services:
     environment:
       NODE_ENV: development
       TDS_BACKEND_URL: http://backend:8000
-      TDS_INTERNAL_API_TOKEN: test-internal-token
       NEXT_PUBLIC_TDS_PUBLIC_ORIGIN: http://localhost
     volumes:
       - ./frontend:/app

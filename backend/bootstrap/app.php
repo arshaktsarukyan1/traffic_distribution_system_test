@@ -32,7 +32,7 @@ return Application::configure(basePath: dirname(__DIR__))
             AssignCorrelationId::class,
         ]);
         $middleware->alias([
-            'internal.api' => \App\Http\Middleware\InternalApiAuth::class,
+            'auth.token' => \App\Http\Middleware\ApiTokenAuth::class,
             'public.metrics' => \App\Http\Middleware\RecordPublicRouteMetrics::class,
         ]);
     })

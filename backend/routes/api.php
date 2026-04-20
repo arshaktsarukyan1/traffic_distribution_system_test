@@ -10,6 +10,7 @@ use App\Http\Controllers\Api\V1\ReportController;
 use App\Http\Controllers\Api\V1\TargetingRuleController;
 use App\Http\Controllers\Api\V1\ConversionController;
 use App\Http\Controllers\Api\V1\OpsController;
+use App\Http\Controllers\Api\V1\AuthController;
 use App\Http\Controllers\Public\HealthController;
 use App\Http\Controllers\Public\RedirectController;
 use App\Http\Controllers\Public\TrackerController;
@@ -19,13 +20,19 @@ use App\Http\Controllers\Webhooks\ShopifyWebhookController;
 Route::get('/health', [HealthController::class, 'index']);
 
 Route::prefix('v1')->group(function (): void {
+    Route::prefix('auth')->group(function (): void {
+        Route::post('/register', [AuthController::class, 'register']);
+        Route::post('/login', [AuthController::class, 'login']);
+    });
+
     Route::prefix('tracking')->middleware('throttle:tracking')->group(function (): void {
         Route::post('/events', [TrackerController::class, 'event']);
     });
     Route::post('/events', [TrackerController::class, 'event'])->middleware('throttle:tracking');
 
-    Route::middleware('internal.api')->group(function (): void {
-        Route::get('/me', fn () => response()->json(['ok' => true]));
+    Route::middleware('auth.token')->group(function (): void {
+        Route::post('/auth/logout', [AuthController::class, 'logout']);
+        Route::get('/me', [AuthController::class, 'me']);
 
         Route::get('/traffic-sources', [TrafficSourceController::class, 'index']);
 

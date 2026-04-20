@@ -1,5 +1,3 @@
-import { existsSync, readFileSync } from "node:fs";
-import { join } from "node:path";
 import type { NextRequest } from "next/server";
 
 function backendBase(): string {
@@ -8,86 +6,18 @@ function backendBase(): string {
   return fromEnv || "http://localhost";
 }
 
-function parseDotenvValue(raw: string, key: string): string {
-  const lines = raw.split(/\r?\n/);
-  const prefix = `${key}=`;
-  for (const line of lines) {
-    const trimmed = line.trim();
-    if (trimmed === "" || trimmed.startsWith("#")) {
-      continue;
-    }
-    if (!trimmed.startsWith(prefix)) {
-      continue;
-    }
-    let v = trimmed.slice(prefix.length).trim();
-    if (
-      (v.startsWith('"') && v.endsWith('"')) ||
-      (v.startsWith("'") && v.endsWith("'"))
-    ) {
-      v = v.slice(1, -1);
-    }
-    return v.trim();
-  }
-  return "";
-}
-
-/**
- * When running `next dev` from ./frontend, pick up the same token Laravel uses if
- * the dashboard env was not duplicated into frontend/.env.local.
- */
-function tokenFromBackendDotenv(): string {
-  if (process.env.NODE_ENV !== "development") {
-    return "";
-  }
-  const candidates = [
-    join(process.cwd(), "..", "backend", ".env"),
-    join(process.cwd(), "backend", ".env"),
-  ];
-  for (const p of candidates) {
-    if (!existsSync(p)) {
-      continue;
-    }
-    try {
-      const parsed = parseDotenvValue(readFileSync(p, "utf8"), "INTERNAL_API_TOKEN");
-      if (parsed !== "") {
-        return parsed;
-      }
-    } catch {
-      // ignore
-    }
-  }
-  return "";
-}
-
-function internalToken(): string {
-  return (
-    process.env.TDS_INTERNAL_API_TOKEN?.trim() ||
-    process.env.INTERNAL_API_TOKEN?.trim() ||
-    tokenFromBackendDotenv() ||
-    ""
-  );
-}
-
 async function proxy(req: NextRequest, pathSegments: string[]): Promise<Response> {
   const backend = backendBase();
-  const token = internalToken();
-
-  if (!token) {
-    return Response.json(
-      {
-        message:
-          "Set TDS_INTERNAL_API_TOKEN (or INTERNAL_API_TOKEN) for the dashboard proxy, e.g. in frontend/.env.development — it must match backend INTERNAL_API_TOKEN.",
-      },
-      { status: 503 },
-    );
-  }
 
   const joined = pathSegments.join("/");
   const src = new URL(req.url);
   const target = `${backend}/api/${joined}${src.search}`;
   const headers = new Headers();
-  headers.set("Authorization", `Bearer ${token}`);
   headers.set("Accept", "application/json");
+  const incomingAuthorization = req.headers.get("authorization");
+  if (incomingAuthorization) {
+    headers.set("Authorization", incomingAuthorization);
+  }
 
   const incomingCt = req.headers.get("content-type");
   if (incomingCt) {
@@ -124,9 +54,8 @@ async function proxy(req: NextRequest, pathSegments: string[]): Promise<Response
 
   if (upstream.status === 401) {
     const hint =
-      "Laravel returned 401: the proxy Bearer token must exactly match backend INTERNAL_API_TOKEN. " +
-      "Set TDS_INTERNAL_API_TOKEN in frontend/.env.local, or in development rely on backend/.env (read automatically), " +
-      "or align frontend/.env.development with your backend token.";
+      "Laravel returned 401. Authenticate first via /api/internal/v1/auth/login " +
+      "and send the returned Bearer token with subsequent requests.";
     const text = await upstream.text();
     try {
       const parsed = JSON.parse(text) as Record<string, unknown>;

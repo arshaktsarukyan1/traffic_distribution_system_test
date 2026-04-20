@@ -1,7 +1,7 @@
 <?php
 
 return [
-    'internal_api_token' => env('INTERNAL_API_TOKEN', ''),
+    'auth_token_ttl_minutes' => (int) env('AUTH_TOKEN_TTL_MINUTES', 1440),
     'shopify_webhook_secret' => env('SHOPIFY_WEBHOOK_SECRET', ''),
     'tracking_rate_limit_per_minute' => (int) env('TRACKING_RATE_LIMIT_PER_MINUTE', 120),
     'webhook_rate_limit_per_minute' => (int) env('WEBHOOK_RATE_LIMIT_PER_MINUTE', 120),
