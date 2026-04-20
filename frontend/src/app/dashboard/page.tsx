@@ -2,9 +2,8 @@
 
 import { useEffect, useMemo, useState } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
-import { AdminShell } from "@/components/admin/AdminShell";
-import { FiltersBar, defaultFilters, type DashboardFilters } from "@/components/dashboard/FiltersBar";
-import { KpiCards, type KpiDelta, type KpiTotals } from "@/components/dashboard/KpiCards";
+import { AdminShell } from "@/components/admin";
+import { FiltersBar, KpiCards, defaultFilters, type DashboardFilters, type KpiDelta, type KpiTotals } from "@/components/dashboard";
 import { api } from "@/lib/apiClient";
 import { ApiError } from "@/lib/apiError";
 import { reportApiError } from "@/lib/reportApiError";

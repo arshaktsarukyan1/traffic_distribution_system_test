@@ -1,4 +1,4 @@
-import { CampaignBuilderForm } from "@/components/campaign/CampaignBuilderForm";
+import { CampaignBuilderForm } from "@/components/campaign";
 
 export default async function EditCampaignPage({
   params,

@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { useEffect, useState } from "react";
-import { AdminShell } from "@/components/admin/AdminShell";
+import { AdminShell } from "@/components/admin";
 import { api } from "@/lib/apiClient";
 import { ApiError } from "@/lib/apiError";
 import { reportApiError } from "@/lib/reportApiError";

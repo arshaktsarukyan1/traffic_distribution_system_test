@@ -3,7 +3,7 @@
 import Link from "next/link";
 import { useEffect, useState } from "react";
 import { useSearchParams } from "next/navigation";
-import { AdminShell } from "@/components/admin/AdminShell";
+import { AdminShell } from "@/components/admin";
 import { fetchAllPages } from "@/lib/paginate";
 import { api } from "@/lib/apiClient";
 import { ApiError } from "@/lib/apiError";

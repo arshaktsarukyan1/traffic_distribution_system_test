@@ -3,9 +3,8 @@
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useCallback, useEffect, useMemo, useState } from "react";
-import { AdminShell } from "@/components/admin/AdminShell";
-import { TargetingRulesSection } from "@/components/campaign/TargetingRulesSection";
-import { WeightSplitEditor, type SplitRow } from "@/components/campaign/WeightSplitEditor";
+import { AdminShell } from "@/components/admin";
+import { TargetingRulesSection, WeightSplitEditor, type SplitRow } from "@/components/campaign";
 import { fetchAllPages } from "@/lib/paginate";
 import { clickUrl, redirectUrl, trackerScriptTag, type DomainRow } from "@/lib/tracking-urls";
 import { activeSum, slugify } from "@/lib/campaign-form";

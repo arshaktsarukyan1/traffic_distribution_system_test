@@ -1,6 +1,6 @@
 import "./globals.css";
 import type { ReactNode } from "react";
-import { GlobalAppWrapper } from "@/components/layout/GlobalAppWrapper";
+import { GlobalAppWrapper } from "@/components/layout";
 
 export const metadata = {
   title: "TDS Dashboard",

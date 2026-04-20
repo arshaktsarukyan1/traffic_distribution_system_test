@@ -1,4 +1,4 @@
-import { DomainDetailClient } from "@/components/domains/DomainDetailClient";
+import { DomainDetailClient } from "@/components/domains";
 
 export default async function DomainDetailPage({
   params,

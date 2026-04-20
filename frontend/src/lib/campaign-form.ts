@@ -1,4 +1,4 @@
-import type { SplitRow } from "@/components/campaign/WeightSplitEditor";
+import type { SplitRow } from "@/components/campaign";
 
 export function slugify(name: string): string {
   return name

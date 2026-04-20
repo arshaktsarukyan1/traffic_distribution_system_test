@@ -1,5 +1,5 @@
 import { Suspense } from "react";
-import { ManualConversionForm } from "@/components/conversions/ManualConversionForm";
+import { ManualConversionForm } from "@/components/conversions";
 
 export default function ManualConversionPage() {
   return (

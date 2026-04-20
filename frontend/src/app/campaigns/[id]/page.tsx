@@ -1,4 +1,4 @@
-import { CampaignDetailsView } from "@/components/dashboard/CampaignDetailsView";
+import { CampaignDetailsView } from "@/components/dashboard";
 
 export default async function CampaignDetailsPage({
   params,

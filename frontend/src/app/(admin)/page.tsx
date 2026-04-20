@@ -1,9 +1,7 @@
-import { TrendChart } from "@/components/charts/TrendChart";
-import { FilterBar } from "@/components/filters/FilterBar";
-import { FilterDateRange } from "@/components/filters/FilterDateRange";
-import { FilterSelect } from "@/components/filters/FilterSelect";
-import { KpiCard } from "@/components/kpi/KpiCard";
-import { DataTable } from "@/components/table/DataTable";
+import { TrendChart } from "@/components/charts";
+import { FilterBar, FilterDateRange, FilterSelect } from "@/components/filters";
+import { KpiCard } from "@/components/kpi";
+import { DataTable } from "@/components/table";
 
 const trend = [
   { label: "Mon", value: 120 },

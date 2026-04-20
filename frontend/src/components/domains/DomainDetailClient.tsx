@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { useCallback, useEffect, useState } from "react";
-import { AdminShell } from "@/components/admin/AdminShell";
+import { AdminShell } from "@/components/admin";
 import { fetchAllPages } from "@/lib/paginate";
 import { api } from "@/lib/apiClient";
 import { ApiError } from "@/lib/apiError";
