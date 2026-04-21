@@ -17,8 +17,8 @@ class TrackerEventRequest extends FormRequest
     public function rules(): array
     {
         return [
-            'campaign_id' => ['required', 'integer'],
-            'session_uuid' => ['nullable', 'string', 'max:64'],
+            'campaign_id' => ['required', 'integer', 'exists:campaigns,id'],
+            'session_uuid' => ['nullable', 'uuid'],
             'ts' => ['nullable', 'string', 'max:40'],
             'referrer' => ['nullable', 'string', 'max:2000'],
             'language' => ['nullable', 'string', 'max:10'],

@@ -36,7 +36,7 @@ class ApiAccessControlTest extends TestCase
 
         $this->postJson('/api/v1/tracking/events', [
             'campaign_id' => $campaign->id,
-            'session_uuid' => 'session-1',
+            'session_uuid' => 'f2d8cf83-7f64-4aa9-bf47-b8e7a61516e9',
         ])->assertAccepted();
     }
 }

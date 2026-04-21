@@ -44,15 +44,15 @@ class TrackingScriptTest extends TestCase
 
         $first = $this->postJson('/api/v1/tracking/events', [
             'campaign_id' => $campaign->id,
-            'session_uuid' => 'persist-session-uuid',
+            'session_uuid' => '7f9ee3aa-5d4d-4d3b-90f7-2d3b1d58e6b1',
         ])->assertAccepted();
 
         $second = $this->postJson('/api/v1/tracking/events', [
             'campaign_id' => $campaign->id,
-            'session_uuid' => 'persist-session-uuid',
+            'session_uuid' => '7f9ee3aa-5d4d-4d3b-90f7-2d3b1d58e6b1',
         ])->assertAccepted();
 
-        $this->assertSame('persist-session-uuid', $first['session_uuid']);
-        $this->assertSame('persist-session-uuid', $second['session_uuid']);
+        $this->assertSame('7f9ee3aa-5d4d-4d3b-90f7-2d3b1d58e6b1', $first['session_uuid']);
+        $this->assertSame('7f9ee3aa-5d4d-4d3b-90f7-2d3b1d58e6b1', $second['session_uuid']);
     }
 }
