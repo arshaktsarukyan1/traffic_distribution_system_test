@@ -4,11 +4,19 @@ namespace Tests\Feature;
 
 use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use Illuminate\Support\Facades\RateLimiter;
 use Tests\TestCase;
 
 class AuthApiTest extends TestCase
 {
     use RefreshDatabase;
+
+    protected function setUp(): void
+    {
+        parent::setUp();
+        RateLimiter::clear('jane@example.com|127.0.0.1');
+        RateLimiter::clear('127.0.0.1');
+    }
 
     public function test_register_returns_user_and_bearer_token(): void
     {
@@ -83,5 +91,42 @@ class AuthApiTest extends TestCase
             ->getJson('/api/v1/me')
             ->assertUnauthorized()
             ->assertJsonPath('error', 'unauthenticated');
+    }
+
+    public function test_login_endpoint_is_throttled(): void
+    {
+        config()->set('tds.auth_login_rate_limit_per_minute', 1);
+        User::query()->create([
+            'name' => 'John Doe',
+            'email' => 'john@example.com',
+            'password' => 'super-secret-password',
+        ]);
+
+        $this->postJson('/api/v1/auth/login', [
+            'email' => 'john@example.com',
+            'password' => 'super-secret-password',
+        ])->assertOk();
+
+        $this->postJson('/api/v1/auth/login', [
+            'email' => 'john@example.com',
+            'password' => 'super-secret-password',
+        ])->assertStatus(429);
+    }
+
+    public function test_register_endpoint_is_throttled(): void
+    {
+        config()->set('tds.auth_register_rate_limit_per_minute', 1);
+
+        $this->postJson('/api/v1/auth/register', [
+            'name' => 'Jane Doe',
+            'email' => 'jane@example.com',
+            'password' => 'super-secret-password',
+        ])->assertCreated();
+
+        $this->postJson('/api/v1/auth/register', [
+            'name' => 'Jane Doe 2',
+            'email' => 'jane2@example.com',
+            'password' => 'super-secret-password',
+        ])->assertStatus(429);
     }
 }

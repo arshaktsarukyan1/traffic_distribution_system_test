@@ -51,6 +51,19 @@ class AppServiceProvider extends ServiceProvider
      */
     public function boot(): void
     {
+        RateLimiter::for('auth.register', function (Request $request): Limit {
+            return Limit::perMinute((int) config('tds.auth_register_rate_limit_per_minute', 10))
+                ->by((string) $request->ip());
+        });
+
+        RateLimiter::for('auth.login', function (Request $request): Limit {
+            $email = strtolower((string) $request->input('email', ''));
+            $key = $email !== '' ? $email.'|'.(string) $request->ip() : (string) $request->ip();
+
+            return Limit::perMinute((int) config('tds.auth_login_rate_limit_per_minute', 10))
+                ->by($key);
+        });
+
         RateLimiter::for('tracking', function (Request $request): Limit {
             return Limit::perMinute((int) config('tds.tracking_rate_limit_per_minute', 120))
                 ->by((string) $request->ip());

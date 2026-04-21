@@ -2,6 +2,8 @@
 
 return [
     'auth_token_ttl_minutes' => (int) env('AUTH_TOKEN_TTL_MINUTES', 1440),
+    'auth_register_rate_limit_per_minute' => (int) env('AUTH_REGISTER_RATE_LIMIT_PER_MINUTE', 10),
+    'auth_login_rate_limit_per_minute' => (int) env('AUTH_LOGIN_RATE_LIMIT_PER_MINUTE', 10),
     'shopify_webhook_secret' => env('SHOPIFY_WEBHOOK_SECRET', ''),
     'tracking_rate_limit_per_minute' => (int) env('TRACKING_RATE_LIMIT_PER_MINUTE', 120),
     'webhook_rate_limit_per_minute' => (int) env('WEBHOOK_RATE_LIMIT_PER_MINUTE', 120),
