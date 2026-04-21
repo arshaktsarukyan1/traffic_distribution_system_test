@@ -151,6 +151,25 @@ Fresh migration + seed (drops all tables first):
 docker compose exec backend php artisan migrate:fresh --seed
 ```
 
+Run Taboola sync manually (same command used by scheduler):
+
+```bash
+docker compose exec backend php artisan tds:sync-taboola
+```
+
+Run with custom date window:
+
+```bash
+docker compose exec backend php artisan tds:sync-taboola --from=2026-04-01 --to=2026-04-21
+```
+
+Optional idempotency key (safe retries):
+
+```bash
+docker compose exec backend php artisan tds:sync-taboola \
+  --from=2026-04-01 --to=2026-04-21 --idempotency-key=manual-sync-20260421
+```
+
 ---
 
 ## 7) Generate traffic data manually
