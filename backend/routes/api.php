@@ -72,8 +72,6 @@ Route::prefix('v1')->group(function (): void {
         Route::get('/ops/sync-runs', [OpsController::class, 'syncRuns']);
     });
 
-    Route::post('/webhooks/shopify/orders', [ShopifyWebhookController::class, 'orders'])
-        ->middleware('throttle:webhooks');
 });
 
 Route::middleware(['throttle:redirect', 'public.metrics'])->group(function (): void {

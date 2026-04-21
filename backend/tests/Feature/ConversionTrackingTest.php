@@ -267,7 +267,7 @@ class ConversionTrackingTest extends TestCase
         $this->assertEqualsWithDelta(5.0, (float) Conversion::query()->where('external_order_id', '120001')->value('amount'), 0.001);
     }
 
-    public function test_legacy_api_v1_shopify_route_still_works(): void
+    public function test_shopify_orders_webhook_is_served_from_canonical_path(): void
     {
         $g = $this->seedClickGraph();
         $payload = [
@@ -278,7 +278,7 @@ class ConversionTrackingTest extends TestCase
         ];
         $raw = json_encode($payload, JSON_THROW_ON_ERROR);
 
-        $this->call('POST', '/api/v1/webhooks/shopify/orders', [], [], [], [
+        $this->call('POST', '/webhooks/shopify/orders', [], [], [], [
             'HTTP_ACCEPT' => 'application/json',
             'CONTENT_TYPE' => 'application/json',
             'HTTP_X_SHOPIFY_HMAC_SHA256' => $this->shopifyHmac($raw),
