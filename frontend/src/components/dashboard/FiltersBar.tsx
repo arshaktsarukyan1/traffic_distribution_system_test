@@ -16,6 +16,7 @@ type FiltersBarProps = {
   filters: DashboardFilters;
   onChange: (next: DashboardFilters) => void;
   trafficSources: TrafficSourceOpt[];
+  countries?: string[];
   showTrafficSource?: boolean;
 };
 
@@ -50,14 +51,39 @@ export function FiltersBar({
   filters,
   onChange,
   trafficSources,
+  countries = [],
   showTrafficSource = true,
 }: FiltersBarProps) {
-  const countryHint = useMemo(() => {
-    const v = filters.country_code.trim().toUpperCase();
-    if (v.length === 0) return "";
-    if (v.length !== 2) return "Use ISO-2 (e.g. US)";
-    return "";
-  }, [filters.country_code]);
+  const fallbackCountryCodes = [
+    "US",
+    "GB",
+    "DE",
+    "FR",
+    "IT",
+    "ES",
+    "CA",
+    "AU",
+    "BR",
+    "MX",
+    "IN",
+    "JP",
+    "KR",
+    "SG",
+    "AE",
+  ];
+
+  const countryOptions = useMemo(() => {
+    const sourceCodes = countries.length > 0 ? countries : fallbackCountryCodes;
+    const displayNames =
+      typeof Intl !== "undefined" && typeof Intl.DisplayNames !== "undefined"
+        ? new Intl.DisplayNames(["en"], { type: "region" })
+        : null;
+
+    return sourceCodes.map((code) => ({
+      code,
+      label: `${displayNames?.of(code) ?? code} (${code})`,
+    }));
+  }, [countries]);
 
   return (
     <section className="w-full rounded-lg border border-slate-300 bg-white p-4 shadow-sm">
@@ -82,18 +108,20 @@ export function FiltersBar({
         </label>
         <label className="form-field min-w-0">
           <span className="form-label">Country</span>
-          <input
-            className="form-control uppercase"
+          <select
+            className="form-control"
             value={filters.country_code}
-            maxLength={2}
-            placeholder="US"
             onChange={(e) =>
               onChange({ ...filters, country_code: e.target.value.toUpperCase() })
             }
-          />
-          {countryHint ? (
-            <span className="mt-1 block text-xs text-amber-700">{countryHint}</span>
-          ) : null}
+          >
+            <option value="">Any</option>
+            {countryOptions.map((country) => (
+              <option key={country.code} value={country.code}>
+                {country.label}
+              </option>
+            ))}
+          </select>
         </label>
         <label className="form-field min-w-0">
           <span className="form-label">Device</span>

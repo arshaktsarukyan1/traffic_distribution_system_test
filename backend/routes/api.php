@@ -68,6 +68,7 @@ Route::prefix('v1')->group(function (): void {
         Route::post('/conversions/manual', [ConversionController::class, 'manualStore']);
 
         Route::get('/reports/kpi', [ReportController::class, 'kpi']);
+        Route::get('/reports/countries', [ReportController::class, 'countries']);
         Route::get('/reports/ab-tests', [ReportController::class, 'abTests']);
         Route::get('/ops/sync-runs', [OpsController::class, 'syncRuns']);
     });

@@ -22,6 +22,13 @@ class ReportController extends Controller
         ]);
     }
 
+    public function countries(): JsonResponse
+    {
+        return response()->json([
+            'data' => $this->reportingService->listCountryCodes((int) Auth::id()),
+        ]);
+    }
+
     public function abTests(ReportAbTestsRequest $request): JsonResponse
     {
         return response()->json([

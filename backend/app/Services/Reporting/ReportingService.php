@@ -60,6 +60,26 @@ final class ReportingService
     }
 
     /**
+     * @return list<string>
+     */
+    public function listCountryCodes(int $userId): array
+    {
+        /** @var list<string> $codes */
+        $codes = Kpi15mAggregate::query()
+            ->join('campaigns', 'campaigns.id', '=', 'kpi_15m_aggregates.campaign_id')
+            ->where('campaigns.user_id', $userId)
+            ->whereNotNull('kpi_15m_aggregates.country_code')
+            ->distinct()
+            ->orderBy('kpi_15m_aggregates.country_code')
+            ->pluck('kpi_15m_aggregates.country_code')
+            ->map(static fn (string $code): string => strtoupper($code))
+            ->values()
+            ->all();
+
+        return $codes;
+    }
+
+    /**
      * @param  array<string, mixed>  $validated
      * @return array<string, mixed>
      */

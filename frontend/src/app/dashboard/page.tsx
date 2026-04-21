@@ -31,6 +31,7 @@ export default function DashboardPage() {
   const sp = useSearchParams();
 
   const [trafficSources, setTrafficSources] = useState<TrafficSource[]>([]);
+  const [countries, setCountries] = useState<string[]>([]);
   const [filters, setFilters] = useState<DashboardFilters>(() => defaultFilters());
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -50,6 +51,21 @@ export default function DashboardPage() {
     };
     setFilters(next);
     // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
+  useEffect(() => {
+    let cancelled = false;
+    (async () => {
+      try {
+        const res = await api.get<{ data: string[] }>("v1/reports/countries");
+        if (!cancelled) setCountries(res.data);
+      } catch {
+        // non-fatal; keep country dropdown at "Any" only
+      }
+    })();
+    return () => {
+      cancelled = true;
+    };
   }, []);
 
   useEffect(() => {
@@ -117,6 +133,7 @@ export default function DashboardPage() {
           filters={filters}
           onChange={onFiltersChange}
           trafficSources={trafficSources}
+          countries={countries}
           showTrafficSource
         />
 
