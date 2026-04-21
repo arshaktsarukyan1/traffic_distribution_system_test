@@ -69,4 +69,16 @@ class WeightedDistributionServiceTest extends TestCase
         $this->assertTrue(abs($ratioA - 70) <= 2.0, 'Split A distribution is outside tolerance.');
         $this->assertTrue(abs($ratioB - 30) <= 2.0, 'Split B distribution is outside tolerance.');
     }
+
+    public function test_pick_weighted_preserves_url_from_split_rows(): void
+    {
+        $service = new WeightedDistributionService();
+        $split = [
+            ['id' => 1, 'url' => 'https://a.example/', 'weight_percent' => 100, 'is_active' => true],
+        ];
+
+        $selected = $service->pickWeighted($split, 1);
+
+        $this->assertSame('https://a.example/', $selected['url']);
+    }
 }

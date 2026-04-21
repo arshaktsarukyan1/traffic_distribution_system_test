@@ -59,11 +59,15 @@ class WeightedDistributionService
 
             if ($isActive) {
                 $total += $weight;
-                $normalizedRows[] = [
+                $entry = [
                     'id' => $id,
                     'weight_percent' => $weight,
                     'is_active' => true,
                 ];
+                if (array_key_exists('url', $row)) {
+                    $entry['url'] = (string) $row['url'];
+                }
+                $normalizedRows[] = $entry;
             }
         }
 
