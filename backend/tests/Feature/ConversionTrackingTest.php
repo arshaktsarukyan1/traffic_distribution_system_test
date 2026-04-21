@@ -177,6 +177,28 @@ class ConversionTrackingTest extends TestCase
         ], $raw)->assertUnauthorized();
     }
 
+    public function test_shopify_webhook_rejects_when_secret_missing_and_insecure_bypass_disabled(): void
+    {
+        Config::set('tds.shopify_webhook_secret', '');
+        Config::set('tds.allow_insecure_shopify_webhooks', false);
+
+        $g = $this->seedClickGraph();
+        $payload = [
+            'id' => 88_013,
+            'total_price' => '1.00',
+            'created_at' => '2026-04-12T10:00:00-00:00',
+            'click_id' => $g->clickUuid,
+        ];
+        $raw = json_encode($payload, JSON_THROW_ON_ERROR);
+
+        $this->call('POST', '/webhooks/shopify/orders', [], [], [], [
+            'HTTP_ACCEPT' => 'application/json',
+            'CONTENT_TYPE' => 'application/json',
+            'HTTP_X_SHOPIFY_HMAC_SHA256' => base64_encode(hash_hmac('sha256', $raw, 'anything', true)),
+            'CONTENT_LENGTH' => (string) strlen($raw),
+        ], $raw)->assertUnauthorized();
+    }
+
     public function test_manual_conversion_entry_persists_and_kpi_report_reflects_aggregates(): void
     {
         $g = $this->seedClickGraph();

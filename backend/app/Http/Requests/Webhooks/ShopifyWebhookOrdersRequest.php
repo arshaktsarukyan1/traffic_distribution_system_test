@@ -63,12 +63,8 @@ class ShopifyWebhookOrdersRequest extends FormRequest
     private function verifyShopifyHmac(string $rawBody): bool
     {
         $secret = (string) config('tds.shopify_webhook_secret', '');
-        if ($secret === '' && app()->isProduction()) {
-            return false;
-        }
-
         if ($secret === '') {
-            return true;
+            return $this->allowInsecureWebhookVerificationBypass();
         }
 
         $provided = (string) $this->header('X-Shopify-Hmac-Sha256', '');
@@ -79,5 +75,14 @@ class ShopifyWebhookOrdersRequest extends FormRequest
         $computed = base64_encode(hash_hmac('sha256', $rawBody, $secret, true));
 
         return hash_equals($computed, $provided);
+    }
+
+    private function allowInsecureWebhookVerificationBypass(): bool
+    {
+        if (! (bool) config('tds.allow_insecure_shopify_webhooks', false)) {
+            return false;
+        }
+
+        return app()->environment(['local', 'testing']);
     }
 }

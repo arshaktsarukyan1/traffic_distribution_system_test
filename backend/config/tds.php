@@ -5,6 +5,7 @@ return [
     'auth_register_rate_limit_per_minute' => (int) env('AUTH_REGISTER_RATE_LIMIT_PER_MINUTE', 10),
     'auth_login_rate_limit_per_minute' => (int) env('AUTH_LOGIN_RATE_LIMIT_PER_MINUTE', 10),
     'shopify_webhook_secret' => env('SHOPIFY_WEBHOOK_SECRET', ''),
+    'allow_insecure_shopify_webhooks' => (bool) env('ALLOW_INSECURE_SHOPIFY_WEBHOOKS', false),
     'tracking_rate_limit_per_minute' => (int) env('TRACKING_RATE_LIMIT_PER_MINUTE', 120),
     'webhook_rate_limit_per_minute' => (int) env('WEBHOOK_RATE_LIMIT_PER_MINUTE', 120),
     'redirect_rate_limit_per_minute' => (int) env('REDIRECT_RATE_LIMIT_PER_MINUTE', 600),
