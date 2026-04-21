@@ -2,6 +2,7 @@
 
 namespace App\Services\Public;
 
+use App\Support\UserAgentDevice;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Str;
@@ -73,12 +74,18 @@ JS;
         $sessionUuid = $payload['session_uuid'] ?? $request->cookie('tds_session_uuid', (string) Str::uuid());
         $session = DB::table('sessions')->where('session_uuid', $sessionUuid)->first();
 
+        $uaForDevice = (string) ($payload['user_agent'] ?? $request->userAgent());
+        $inferredDevice = UserAgentDevice::infer($uaForDevice);
+        $resolvedDevice = isset($payload['device_type']) && $payload['device_type'] !== null
+            ? (string) $payload['device_type']
+            : (($session !== null && $session->device_type !== null) ? (string) $session->device_type : $inferredDevice);
+
         $sessionPayload = [
             'ip' => $request->ip(),
             'country_code' => isset($payload['country_code']) ? strtoupper((string) $payload['country_code']) : null,
             'region' => $payload['region'] ?? null,
             'city' => $payload['city'] ?? null,
-            'device_type' => $payload['device_type'] ?? null,
+            'device_type' => $resolvedDevice,
             'language' => $payload['language'] ?? null,
             'browser' => substr((string) ($payload['user_agent'] ?? $request->userAgent()), 0, 255),
             'os' => isset($payload['os']) ? substr((string) $payload['os'], 0, 120) : null,
@@ -100,6 +107,8 @@ JS;
             'campaign_id' => $payload['campaign_id'],
             'session_id' => $sessionId,
             'lander_id' => null,
+            'country_code' => $sessionPayload['country_code'],
+            'device_type' => $sessionPayload['device_type'],
             'risk_flags' => json_encode($this->riskSignals->snapshotForRequest($request)),
             'created_at' => now(),
             'updated_at' => now(),

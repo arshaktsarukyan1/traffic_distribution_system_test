@@ -3,6 +3,7 @@
 namespace App\Services\Public;
 
 use App\Services\WeightedDistributionService;
+use App\Support\UserAgentDevice;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\DB;
@@ -191,7 +192,7 @@ final class PublicClickService
             'country_code' => null,
             'region' => null,
             'city' => null,
-            'device_type' => null,
+            'device_type' => UserAgentDevice::infer($request->userAgent()),
             'browser' => substr((string) $request->userAgent(), 0, 255),
             'os' => null,
             'language' => substr((string) $request->header('Accept-Language'), 0, 10),

@@ -3,6 +3,7 @@
 namespace App\Services\Public;
 
 use App\Services\WeightedDistributionService;
+use App\Support\UserAgentDevice;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\DB;
@@ -109,6 +110,8 @@ final class PublicRedirectService
             ->where('session_uuid', $sessionUuid)
             ->first();
 
+        $uaDevice = UserAgentDevice::infer($request->userAgent());
+
         $payload = [
             'ip' => $request->ip(),
             'language' => substr((string) $request->header('Accept-Language'), 0, 10),
@@ -118,24 +121,26 @@ final class PublicRedirectService
         ];
 
         if ($existing) {
+            $payload['device_type'] = $existing->device_type ?? $uaDevice;
             DB::table('sessions')->where('id', $existing->id)->update($payload);
 
             return [
                 'id' => (int) $existing->id,
                 'country_code' => $payload['country_code'] ?? $existing->country_code ?? null,
-                'device_type' => $payload['device_type'] ?? $existing->device_type ?? null,
+                'device_type' => $payload['device_type'],
             ];
         }
 
         $id = DB::table('sessions')->insertGetId(array_merge($payload, [
             'session_uuid' => $sessionUuid,
+            'device_type' => $uaDevice,
             'created_at' => now(),
         ]));
 
         return [
             'id' => (int) $id,
             'country_code' => $payload['country_code'] ?? null,
-            'device_type' => $payload['device_type'] ?? null,
+            'device_type' => $uaDevice,
         ];
     }
 }
