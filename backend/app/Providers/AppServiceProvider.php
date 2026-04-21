@@ -76,7 +76,6 @@ class AppServiceProvider extends ServiceProvider
 
         RateLimiter::for('webhooks', function (Request $request): Limit {
             $by = (string) ($request->header('X-Shopify-Shop-Domain')
-                ?: $request->header('X-Forwarded-For')
                 ?: $request->ip());
 
             return Limit::perMinute((int) config('tds.webhook_rate_limit_per_minute', 120))->by($by);

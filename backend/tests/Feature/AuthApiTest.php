@@ -14,8 +14,18 @@ class AuthApiTest extends TestCase
     protected function setUp(): void
     {
         parent::setUp();
+        $this->withServerVariables([
+            'REMOTE_ADDR' => '127.0.0.1',
+        ]);
+
+        RateLimiter::clear('john@example.com|127.0.0.1');
         RateLimiter::clear('jane@example.com|127.0.0.1');
+        RateLimiter::clear('mia@example.com|127.0.0.1');
         RateLimiter::clear('127.0.0.1');
+        RateLimiter::clear('john@example.com|::1');
+        RateLimiter::clear('jane@example.com|::1');
+        RateLimiter::clear('mia@example.com|::1');
+        RateLimiter::clear('::1');
     }
 
     public function test_register_returns_user_and_bearer_token(): void
@@ -95,31 +105,44 @@ class AuthApiTest extends TestCase
 
     public function test_login_endpoint_is_throttled(): void
     {
+        $testIp = '10.10.10.10';
+        $email = 'john-throttle@example.com';
+        $this->withServerVariables([
+            'REMOTE_ADDR' => $testIp,
+        ]);
+
+        RateLimiter::clear($email.'|'.$testIp);
         config()->set('tds.auth_login_rate_limit_per_minute', 1);
         User::query()->create([
             'name' => 'John Doe',
-            'email' => 'john@example.com',
+            'email' => $email,
             'password' => 'super-secret-password',
         ]);
 
         $this->postJson('/api/v1/auth/login', [
-            'email' => 'john@example.com',
+            'email' => $email,
             'password' => 'super-secret-password',
         ])->assertOk();
 
         $this->postJson('/api/v1/auth/login', [
-            'email' => 'john@example.com',
+            'email' => $email,
             'password' => 'super-secret-password',
         ])->assertStatus(429);
     }
 
     public function test_register_endpoint_is_throttled(): void
     {
+        $testIp = '10.10.10.11';
+        $this->withServerVariables([
+            'REMOTE_ADDR' => $testIp,
+        ]);
+
+        RateLimiter::clear($testIp);
         config()->set('tds.auth_register_rate_limit_per_minute', 1);
 
         $this->postJson('/api/v1/auth/register', [
             'name' => 'Jane Doe',
-            'email' => 'jane@example.com',
+            'email' => 'jane-throttle@example.com',
             'password' => 'super-secret-password',
         ])->assertCreated();
 
