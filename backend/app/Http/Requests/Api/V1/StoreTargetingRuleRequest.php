@@ -2,11 +2,14 @@
 
 namespace App\Http\Requests\Api\V1;
 
+use App\Http\Requests\Concerns\ValidatesUserOrGlobalIds;
 use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Validation\Rule;
 
 class StoreTargetingRuleRequest extends FormRequest
 {
+    use ValidatesUserOrGlobalIds;
+
     public function authorize(): bool
     {
         return true;
@@ -20,7 +23,7 @@ class StoreTargetingRuleRequest extends FormRequest
         $userId = (int) $this->user()->id;
 
         return [
-            'offer_id' => ['required', 'nullable', 'integer', Rule::exists('offers', 'id')->where('user_id', $userId)],
+            'offer_id' => ['required', 'nullable', 'integer', $this->ruleIdOwnedByUserOrShared('offers', $userId)],
             'country_code' => ['sometimes', 'nullable', 'string', 'size:2'],
             'region' => ['sometimes', 'nullable', 'string', 'max:255'],
             'device_type' => ['sometimes', 'nullable', 'in:desktop,mobile,tablet'],

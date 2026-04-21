@@ -9,7 +9,7 @@ final class DomainService
     public function paginateIndex(int $userId): \Illuminate\Contracts\Pagination\LengthAwarePaginator
     {
         return Domain::query()
-            ->where('user_id', $userId)
+            ->where(fn ($q) => $q->whereNull('user_id')->orWhere('user_id', $userId))
             ->withCount('campaigns')
             ->latest('id')
             ->paginate(20);
@@ -18,7 +18,7 @@ final class DomainService
     public function findForShow(int $userId, int $id): Domain
     {
         return Domain::query()
-            ->where('user_id', $userId)
+            ->where(fn ($q) => $q->whereNull('user_id')->orWhere('user_id', $userId))
             ->withCount('campaigns')
             ->with([
                 'campaigns' => static fn ($q) => $q

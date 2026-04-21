@@ -8,7 +8,10 @@ final class LanderService
 {
     public function paginateIndex(int $userId): \Illuminate\Contracts\Pagination\LengthAwarePaginator
     {
-        return Lander::query()->where('user_id', $userId)->latest('id')->paginate(20);
+        return Lander::query()
+            ->where(fn ($q) => $q->whereNull('user_id')->orWhere('user_id', $userId))
+            ->latest('id')
+            ->paginate(20);
     }
 
     /**

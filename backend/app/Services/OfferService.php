@@ -8,7 +8,10 @@ final class OfferService
 {
     public function paginateIndex(int $userId): \Illuminate\Contracts\Pagination\LengthAwarePaginator
     {
-        return Offer::query()->where('user_id', $userId)->latest('id')->paginate(20);
+        return Offer::query()
+            ->where(fn ($q) => $q->whereNull('user_id')->orWhere('user_id', $userId))
+            ->latest('id')
+            ->paginate(20);
     }
 
     /**

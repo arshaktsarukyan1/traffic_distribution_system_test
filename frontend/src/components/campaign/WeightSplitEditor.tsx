@@ -30,6 +30,10 @@ export function WeightSplitEditor({
   const total = activeTotal(rows);
   const valid = rows.length === 0 || total === 100;
 
+  const canAddRow =
+    options.length > 0 &&
+    options.some((o) => !rows.some((r) => r.id === o.id));
+
   const addRow = () => {
     const used = new Set(rows.map((r) => r.id));
     const nextOpt = options.find((o) => !used.has(o.id));
@@ -80,9 +84,16 @@ export function WeightSplitEditor({
         <div className="flex flex-wrap gap-2">
           <button
             type="button"
-            className="rounded-md border border-slate-200 bg-white px-3 py-1.5 text-sm font-medium text-slate-800 hover:bg-slate-50"
+            className="rounded-md border border-slate-200 bg-white px-3 py-1.5 text-sm font-medium text-slate-800 hover:bg-slate-50 disabled:cursor-not-allowed disabled:opacity-50"
             onClick={addRow}
-            disabled={rows.length >= options.length}
+            disabled={!canAddRow}
+            title={
+              options.length === 0
+                ? "Add catalog items first; the API returned none for this split."
+                : !canAddRow
+                  ? "Each available item already has a row."
+                  : undefined
+            }
           >
             Add row
           </button>
@@ -108,6 +119,13 @@ export function WeightSplitEditor({
             ? "Active weights total 100%."
             : `Active weights total ${total}% (must be exactly 100%).`}
       </p>
+
+      {options.length === 0 ? (
+        <p className="mt-2 text-sm text-amber-800">
+          This list is empty, so Add row stays disabled. Create offers or landers for your account (or
+          reload after seeding shared catalog data), then refresh the page.
+        </p>
+      ) : null}
 
       {rows.length > 0 ? (
         <div className="mt-4 overflow-x-auto">
