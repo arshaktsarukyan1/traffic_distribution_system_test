@@ -2,6 +2,7 @@
 
 namespace Tests\Feature;
 
+use App\Models\PersonalAccessToken;
 use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Facades\RateLimiter;
@@ -101,6 +102,44 @@ class AuthApiTest extends TestCase
             ->getJson('/api/v1/me')
             ->assertUnauthorized()
             ->assertJsonPath('error', 'unauthenticated');
+    }
+
+    public function test_token_last_used_at_is_not_updated_on_every_request_within_touch_window(): void
+    {
+        config()->set('tds.auth_token_last_used_touch_interval_seconds', 300);
+
+        $registerResponse = $this->postJson('/api/v1/auth/register', [
+            'name' => 'Touch Window User',
+            'email' => 'touch-window@example.com',
+            'password' => 'super-secret-password',
+        ])->assertCreated();
+
+        $token = (string) $registerResponse->json('data.token');
+
+        $this->withToken($token)
+            ->getJson('/api/v1/me')
+            ->assertOk();
+
+        $accessToken = PersonalAccessToken::query()->firstOrFail();
+        $firstLastUsedAt = $accessToken->last_used_at;
+
+        $this->travel(120)->seconds();
+
+        $this->withToken($token)
+            ->getJson('/api/v1/me')
+            ->assertOk();
+
+        $accessToken->refresh();
+        $this->assertTrue($accessToken->last_used_at?->equalTo($firstLastUsedAt));
+
+        $this->travel(301)->seconds();
+
+        $this->withToken($token)
+            ->getJson('/api/v1/me')
+            ->assertOk();
+
+        $accessToken->refresh();
+        $this->assertTrue($accessToken->last_used_at?->gt($firstLastUsedAt));
     }
 
     public function test_login_endpoint_is_throttled(): void

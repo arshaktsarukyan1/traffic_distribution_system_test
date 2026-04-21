@@ -8,6 +8,7 @@ use App\Support\ApiErrorCodeEnum;
 use Closure;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
+use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\Auth;
 use Symfony\Component\HttpFoundation\Response;
 
@@ -30,7 +31,7 @@ class ApiTokenAuth
             return $this->unauthorizedResponse($request);
         }
 
-        $token->forceFill(['last_used_at' => now()])->save();
+        $this->touchLastUsedAt($token);
         Auth::setUser($token->user);
         $request->attributes->set('access_token_id', $token->id);
 
@@ -46,5 +47,18 @@ class ApiTokenAuth
             $request,
             ApiErrorCodeEnum::Unauthenticated,
         );
+    }
+
+    private function touchLastUsedAt(PersonalAccessToken $token): void
+    {
+        $intervalSeconds = max(0, (int) config('tds.auth_token_last_used_touch_interval_seconds', 300));
+        $now = Carbon::now();
+        $lastUsedAt = $token->last_used_at;
+
+        if ($lastUsedAt instanceof Carbon && $intervalSeconds > 0 && $lastUsedAt->gt($now->copy()->subSeconds($intervalSeconds))) {
+            return;
+        }
+
+        $token->forceFill(['last_used_at' => $now])->save();
     }
 }
