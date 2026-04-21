@@ -8,6 +8,7 @@ use App\Services\Conversion\ManualConversionService;
 use App\Support\ApiError;
 use App\Support\ApiErrorCodeEnum;
 use Illuminate\Http\JsonResponse;
+use Illuminate\Support\Facades\Auth;
 
 class ConversionController extends Controller
 {
@@ -17,7 +18,7 @@ class ConversionController extends Controller
 
     public function manualStore(StoreManualConversionRequest $request): JsonResponse
     {
-        $result = $this->manualConversionService->createFromValidated($request->validated());
+        $result = $this->manualConversionService->createFromValidated((int) Auth::id(), $request->validated());
 
         if (isset($result['error'])) {
             return ApiError::respond(

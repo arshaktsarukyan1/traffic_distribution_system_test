@@ -22,7 +22,7 @@ final class ReportingService
      * @param  array<string, mixed>  $validated
      * @return array<string, mixed>
      */
-    public function buildKpiReport(array $validated): array
+    public function buildKpiReport(int $userId, array $validated): array
     {
         $to = isset($validated['to']) ? now()->parse((string) $validated['to']) : now();
         $from = isset($validated['from']) ? now()->parse((string) $validated['from']) : now()->subDays(7);
@@ -38,8 +38,8 @@ final class ReportingService
         $prevTo = $from->copy()->subSecond();
         $prevFrom = $prevTo->copy()->subSeconds($seconds)->addSecond();
 
-        $current = $this->readKpiTotals($validated, $from, $to);
-        $previous = $this->readKpiTotals($validated, $prevFrom, $prevTo);
+        $current = $this->readKpiTotals($userId, $validated, $from, $to);
+        $previous = $this->readKpiTotals($userId, $validated, $prevFrom, $prevTo);
         $delta = $this->computeDelta($current, $previous);
 
         return [
@@ -63,7 +63,7 @@ final class ReportingService
      * @param  array<string, mixed>  $validated
      * @return array<string, mixed>
      */
-    public function buildAbTestsReport(array $validated): array
+    public function buildAbTestsReport(int $userId, array $validated): array
     {
         $campaignId = (int) $validated['campaign_id'];
         $days = (int) ($validated['days'] ?? 30);
@@ -79,20 +79,26 @@ final class ReportingService
         $deviceType = $validated['device_type'] ?? null;
 
         $totalClicks = (int) Click::query()
-            ->where('campaign_id', $campaignId)
+            ->join('campaigns', 'campaigns.id', '=', 'clicks.campaign_id')
+            ->where('campaigns.user_id', $userId)
+            ->where('clicks.campaign_id', $campaignId)
             ->whereBetween('created_at', [$from, $to])
             ->when($countryCode !== null, fn ($q) => $q->where('country_code', $countryCode))
             ->when($deviceType !== null, fn ($q) => $q->where('device_type', $deviceType))
             ->count();
 
         $totalCost = (float) CostEntry::query()
-            ->where('campaign_id', $campaignId)
+            ->join('campaigns', 'campaigns.id', '=', 'cost_entries.campaign_id')
+            ->where('campaigns.user_id', $userId)
+            ->where('cost_entries.campaign_id', $campaignId)
             ->whereBetween('bucket_start', [$from, $to])
             ->when($countryCode !== null, fn ($q) => $q->where('country_code', $countryCode))
             ->sum('amount');
 
         $aggregated = Click::query()
+            ->join('campaigns', 'campaigns.id', '=', 'clicks.campaign_id')
             ->leftJoin('conversions', 'conversions.click_id', '=', 'clicks.id')
+            ->where('campaigns.user_id', $userId)
             ->where('clicks.campaign_id', $campaignId)
             ->whereBetween('clicks.created_at', [$from, $to])
             ->whereNotNull('clicks.offer_id')
@@ -165,7 +171,7 @@ final class ReportingService
      * @param  array<string, mixed>  $filters
      * @return array<string, mixed>
      */
-    private function readKpiTotals(array $filters, CarbonInterface $from, CarbonInterface $to): array
+    private function readKpiTotals(int $userId, array $filters, CarbonInterface $from, CarbonInterface $to): array
     {
         $countryCode = isset($filters['country_code']) && $filters['country_code'] !== null
             ? strtoupper((string) $filters['country_code'])
@@ -179,10 +185,11 @@ final class ReportingService
             : null;
 
         $query = Kpi15mAggregate::query()
+            ->join('campaigns', 'campaigns.id', '=', 'kpi_15m_aggregates.campaign_id')
+            ->where('campaigns.user_id', $userId)
             ->when(
                 $trafficSourceId !== null,
                 fn ($q) => $q
-                    ->join('campaigns', 'campaigns.id', '=', 'kpi_15m_aggregates.campaign_id')
                     ->where('campaigns.traffic_source_id', $trafficSourceId)
             )
             ->when($campaignId !== null, fn ($q) => $q->where('kpi_15m_aggregates.campaign_id', $campaignId))

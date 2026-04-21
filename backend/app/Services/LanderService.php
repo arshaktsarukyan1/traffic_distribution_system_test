@@ -6,32 +6,34 @@ use App\Models\Lander;
 
 final class LanderService
 {
-    public function paginateIndex(): \Illuminate\Contracts\Pagination\LengthAwarePaginator
+    public function paginateIndex(int $userId): \Illuminate\Contracts\Pagination\LengthAwarePaginator
     {
-        return Lander::query()->latest('id')->paginate(20);
+        return Lander::query()->where('user_id', $userId)->latest('id')->paginate(20);
     }
 
     /**
      * @param  array<string, mixed>  $attributes
      */
-    public function create(array $attributes): Lander
+    public function create(int $userId, array $attributes): Lander
     {
+        $attributes['user_id'] = $userId;
+
         return Lander::query()->create($attributes);
     }
 
     /**
      * @param  array<string, mixed>  $attributes
      */
-    public function update(int $id, array $attributes): Lander
+    public function update(int $userId, int $id, array $attributes): Lander
     {
-        $lander = Lander::query()->findOrFail($id);
+        $lander = Lander::query()->where('user_id', $userId)->findOrFail($id);
         $lander->fill($attributes)->save();
 
         return $lander;
     }
 
-    public function delete(int $id): void
+    public function delete(int $userId, int $id): void
     {
-        Lander::query()->findOrFail($id)->delete();
+        Lander::query()->where('user_id', $userId)->findOrFail($id)->delete();
     }
 }

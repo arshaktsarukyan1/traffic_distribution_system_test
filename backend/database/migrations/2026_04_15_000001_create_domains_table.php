@@ -9,10 +9,13 @@ return new class extends Migration {
     {
         Schema::create('domains', function (Blueprint $table): void {
             $table->id();
+            $table->foreignId('user_id')->nullable()->constrained('users')->nullOnDelete();
             $table->string('name')->unique();
             $table->enum('status', ['pending', 'active', 'disabled'])->default('pending');
             $table->boolean('is_active')->default(true);
             $table->timestamps();
+
+            $table->index(['user_id', 'id']);
         });
     }
 

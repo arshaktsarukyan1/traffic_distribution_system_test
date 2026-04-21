@@ -8,9 +8,11 @@ use Illuminate\Contracts\Pagination\LengthAwarePaginator;
 
 final class TargetingRuleService
 {
-    public function paginateForCampaign(int $campaignId): LengthAwarePaginator
+    public function paginateForCampaign(int $userId, int $campaignId): LengthAwarePaginator
     {
-        $campaign = Campaign::query()->findOrFail($campaignId);
+        $campaign = Campaign::query()
+            ->where('user_id', $userId)
+            ->findOrFail($campaignId);
 
         return $campaign->targetingRules()
             ->with('offer')
@@ -21,9 +23,9 @@ final class TargetingRuleService
     /**
      * @param  array<string, mixed>  $attributes
      */
-    public function createForCampaign(int $campaignId, array $attributes): TargetingRule
+    public function createForCampaign(int $userId, int $campaignId, array $attributes): TargetingRule
     {
-        Campaign::query()->findOrFail($campaignId);
+        Campaign::query()->where('user_id', $userId)->findOrFail($campaignId);
         $attributes['campaign_id'] = $campaignId;
 
         return TargetingRule::query()->create($attributes)->load('offer');
@@ -32,8 +34,10 @@ final class TargetingRuleService
     /**
      * @param  array<string, mixed>  $attributes
      */
-    public function update(int $campaignId, int $id, array $attributes): TargetingRule
+    public function update(int $userId, int $campaignId, int $id, array $attributes): TargetingRule
     {
+        Campaign::query()->where('user_id', $userId)->findOrFail($campaignId);
+
         $rule = TargetingRule::query()
             ->where('campaign_id', $campaignId)
             ->findOrFail($id);
@@ -43,8 +47,10 @@ final class TargetingRuleService
         return $rule->load('offer');
     }
 
-    public function delete(int $campaignId, int $id): void
+    public function delete(int $userId, int $campaignId, int $id): void
     {
+        Campaign::query()->where('user_id', $userId)->findOrFail($campaignId);
+
         TargetingRule::query()
             ->where('campaign_id', $campaignId)
             ->findOrFail($id)

@@ -3,6 +3,7 @@
 namespace App\Http\Requests\Api\V1;
 
 use Illuminate\Foundation\Http\FormRequest;
+use Illuminate\Validation\Rule;
 
 class ReportAbTestsRequest extends FormRequest
 {
@@ -16,8 +17,10 @@ class ReportAbTestsRequest extends FormRequest
      */
     public function rules(): array
     {
+        $userId = (int) $this->user()->id;
+
         return [
-            'campaign_id' => ['required', 'integer', 'exists:campaigns,id'],
+            'campaign_id' => ['required', 'integer', Rule::exists('campaigns', 'id')->where('user_id', $userId)],
             'days' => ['sometimes', 'integer', 'min:1', 'max:365'],
             'from' => ['sometimes', 'date'],
             'to' => ['sometimes', 'date'],

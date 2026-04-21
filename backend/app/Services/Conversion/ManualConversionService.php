@@ -12,10 +12,10 @@ final class ManualConversionService
      * @param  array<string, mixed>  $validated
      * @return array{conversion: Conversion}|array{error: string}
      */
-    public function createFromValidated(array $validated): array
+    public function createFromValidated(int $userId, array $validated): array
     {
         $campaignId = (int) $validated['campaign_id'];
-        $click = $this->resolveClick($validated);
+        $click = $this->resolveClick($userId, $validated);
 
         if ($click !== null && (int) $click->campaign_id !== $campaignId) {
             return ['error' => 'Click does not belong to the given campaign.'];
@@ -27,6 +27,15 @@ final class ManualConversionService
         }
         if (array_key_exists('lander_id', $validated) && $validated['lander_id'] !== null) {
             $metadata['lander_id'] = (int) $validated['lander_id'];
+        }
+
+        $campaignBelongsToUser = \App\Models\Campaign::query()
+            ->where('user_id', $userId)
+            ->where('id', $campaignId)
+            ->exists();
+
+        if (! $campaignBelongsToUser) {
+            return ['error' => 'Campaign was not found.'];
         }
 
         $conversion = Conversion::query()->create([
@@ -48,13 +57,23 @@ final class ManualConversionService
     /**
      * @param  array<string, mixed>  $validated
      */
-    private function resolveClick(array $validated): ?Click
+    private function resolveClick(int $userId, array $validated): ?Click
     {
         if (! empty($validated['click_id'])) {
-            return Click::query()->find((int) $validated['click_id']);
+            return Click::query()
+                ->join('campaigns', 'campaigns.id', '=', 'clicks.campaign_id')
+                ->where('campaigns.user_id', $userId)
+                ->where('clicks.id', (int) $validated['click_id'])
+                ->select('clicks.*')
+                ->first();
         }
         if (! empty($validated['click_uuid'])) {
-            return Click::query()->where('click_uuid', $validated['click_uuid'])->first();
+            return Click::query()
+                ->join('campaigns', 'campaigns.id', '=', 'clicks.campaign_id')
+                ->where('campaigns.user_id', $userId)
+                ->where('clicks.click_uuid', $validated['click_uuid'])
+                ->select('clicks.*')
+                ->first();
         }
 
         return null;

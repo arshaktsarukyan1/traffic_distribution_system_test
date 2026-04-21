@@ -8,9 +8,10 @@ use Illuminate\Support\Facades\DB;
 
 final class CampaignService
 {
-    public function paginateIndex(): \Illuminate\Contracts\Pagination\LengthAwarePaginator
+    public function paginateIndex(int $userId): \Illuminate\Contracts\Pagination\LengthAwarePaginator
     {
         return Campaign::query()
+            ->where('user_id', $userId)
             ->with(['domain', 'trafficSource'])
             ->latest('id')
             ->paginate(20);
@@ -19,9 +20,10 @@ final class CampaignService
     /**
      * @param  array<string, mixed>  $payload
      */
-    public function create(array $payload): Campaign
+    public function create(int $userId, array $payload): Campaign
     {
-        return DB::transaction(function () use ($payload): Campaign {
+        return DB::transaction(function () use ($userId, $payload): Campaign {
+            $payload['user_id'] = $userId;
             $campaign = Campaign::query()->create(Arr::except($payload, ['landers', 'offers']));
             $this->syncSplits($campaign, $payload);
 
@@ -29,9 +31,10 @@ final class CampaignService
         });
     }
 
-    public function findForShow(int $id): Campaign
+    public function findForShow(int $userId, int $id): Campaign
     {
         return Campaign::query()
+            ->where('user_id', $userId)
             ->with(['landers', 'offers', 'trafficSource', 'domain', 'targetingRules'])
             ->findOrFail($id);
     }
@@ -39,9 +42,9 @@ final class CampaignService
     /**
      * @param  array<string, mixed>  $payload
      */
-    public function update(int $id, array $payload): Campaign
+    public function update(int $userId, int $id, array $payload): Campaign
     {
-        $campaign = Campaign::query()->findOrFail($id);
+        $campaign = Campaign::query()->where('user_id', $userId)->findOrFail($id);
 
         return DB::transaction(function () use ($campaign, $payload): Campaign {
             $campaign->fill(Arr::except($payload, ['landers', 'offers']));
@@ -52,9 +55,9 @@ final class CampaignService
         });
     }
 
-    public function setStatus(int $id, string $status): Campaign
+    public function setStatus(int $userId, int $id, string $status): Campaign
     {
-        $campaign = Campaign::query()->findOrFail($id);
+        $campaign = Campaign::query()->where('user_id', $userId)->findOrFail($id);
         $campaign->status = $status;
         $campaign->save();
 

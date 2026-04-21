@@ -7,6 +7,7 @@ use App\Http\Requests\Api\V1\StoreOfferRequest;
 use App\Http\Requests\Api\V1\UpdateOfferRequest;
 use App\Services\OfferService;
 use Illuminate\Http\JsonResponse;
+use Illuminate\Support\Facades\Auth;
 
 class OfferController extends Controller
 {
@@ -16,22 +17,22 @@ class OfferController extends Controller
 
     public function index(): JsonResponse
     {
-        return response()->json($this->offerService->paginateIndex());
+        return response()->json($this->offerService->paginateIndex((int) Auth::id()));
     }
 
     public function store(StoreOfferRequest $request): JsonResponse
     {
-        return response()->json(['data' => $this->offerService->create($request->validated())], 201);
+        return response()->json(['data' => $this->offerService->create((int) Auth::id(), $request->validated())], 201);
     }
 
     public function update(UpdateOfferRequest $request, int $id): JsonResponse
     {
-        return response()->json(['data' => $this->offerService->update($id, $request->validated())]);
+        return response()->json(['data' => $this->offerService->update((int) Auth::id(), $id, $request->validated())]);
     }
 
     public function destroy(int $id): JsonResponse
     {
-        $this->offerService->delete($id);
+        $this->offerService->delete((int) Auth::id(), $id);
 
         return response()->json([], 204);
     }

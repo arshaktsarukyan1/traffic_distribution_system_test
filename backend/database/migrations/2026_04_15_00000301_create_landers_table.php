@@ -9,9 +9,12 @@ return new class extends Migration {
     {
         Schema::create('landers', function (Blueprint $table): void {
             $table->id();
+            $table->foreignId('user_id')->nullable()->constrained('users')->nullOnDelete();
             $table->string('name');
             $table->string('url', 2048);
             $table->timestamps();
+
+            $table->index(['user_id', 'id']);
         });
     }
 

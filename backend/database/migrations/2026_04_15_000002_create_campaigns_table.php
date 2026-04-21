@@ -9,6 +9,7 @@ return new class extends Migration {
     {
         Schema::create('campaigns', function (Blueprint $table): void {
             $table->id();
+            $table->foreignId('user_id')->nullable()->constrained('users')->nullOnDelete();
             $table->foreignId('domain_id')->nullable()->constrained('domains')->nullOnDelete();
             $table->foreignId('traffic_source_id')->constrained('traffic_sources')->cascadeOnDelete();
             $table->string('external_traffic_campaign_id')->nullable();
@@ -21,6 +22,7 @@ return new class extends Migration {
             $table->decimal('monthly_budget', 12, 2)->nullable();
             $table->timestamps();
 
+            $table->index(['user_id', 'id']);
             $table->index(['status', 'traffic_source_id']);
             $table->index(['traffic_source_id', 'external_traffic_campaign_id'], 'campaigns_traffic_external_idx');
         });

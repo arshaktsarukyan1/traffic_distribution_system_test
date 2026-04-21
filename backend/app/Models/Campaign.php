@@ -10,6 +10,7 @@ use Illuminate\Database\Eloquent\Model;
 class Campaign extends Model
 {
     protected $fillable = [
+        'user_id',
         'domain_id',
         'traffic_source_id',
         'external_traffic_campaign_id',
@@ -25,6 +26,11 @@ class Campaign extends Model
     public function domain(): BelongsTo
     {
         return $this->belongsTo(Domain::class);
+    }
+
+    public function user(): BelongsTo
+    {
+        return $this->belongsTo(User::class);
     }
 
     public function trafficSource(): BelongsTo

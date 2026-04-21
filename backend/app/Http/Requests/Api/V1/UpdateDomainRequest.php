@@ -18,9 +18,10 @@ class UpdateDomainRequest extends FormRequest
     public function rules(): array
     {
         $id = (int) $this->route('id');
+        $userId = (int) $this->user()->id;
 
         return [
-            'name' => ['sometimes', 'required', 'string', 'max:255', Rule::unique('domains', 'name')->ignore($id)],
+            'name' => ['sometimes', 'required', 'string', 'max:255', Rule::unique('domains', 'name')->where('user_id', $userId)->ignore($id)],
             'status' => ['sometimes', 'required', 'in:pending,active,disabled'],
             'is_active' => ['sometimes', 'boolean'],
         ];

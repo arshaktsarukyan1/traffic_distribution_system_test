@@ -33,4 +33,24 @@ class User extends Authenticatable
     {
         return $this->hasMany(PersonalAccessToken::class);
     }
+
+    public function domains(): HasMany
+    {
+        return $this->hasMany(Domain::class);
+    }
+
+    public function campaigns(): HasMany
+    {
+        return $this->hasMany(Campaign::class);
+    }
+
+    public function landers(): HasMany
+    {
+        return $this->hasMany(Lander::class);
+    }
+
+    public function offers(): HasMany
+    {
+        return $this->hasMany(Offer::class);
+    }
 }

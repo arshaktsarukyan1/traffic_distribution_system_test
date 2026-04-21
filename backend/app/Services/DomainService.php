@@ -6,17 +6,19 @@ use App\Models\Domain;
 
 final class DomainService
 {
-    public function paginateIndex(): \Illuminate\Contracts\Pagination\LengthAwarePaginator
+    public function paginateIndex(int $userId): \Illuminate\Contracts\Pagination\LengthAwarePaginator
     {
         return Domain::query()
+            ->where('user_id', $userId)
             ->withCount('campaigns')
             ->latest('id')
             ->paginate(20);
     }
 
-    public function findForShow(int $id): Domain
+    public function findForShow(int $userId, int $id): Domain
     {
         return Domain::query()
+            ->where('user_id', $userId)
             ->withCount('campaigns')
             ->with([
                 'campaigns' => static fn ($q) => $q
@@ -29,26 +31,28 @@ final class DomainService
     /**
      * @param  array<string, mixed>  $attributes
      */
-    public function create(array $attributes): Domain
+    public function create(int $userId, array $attributes): Domain
     {
+        $attributes['user_id'] = $userId;
+
         return Domain::query()->create($attributes);
     }
 
     /**
      * @param  array<string, mixed>  $attributes
      */
-    public function update(int $id, array $attributes): Domain
+    public function update(int $userId, int $id, array $attributes): Domain
     {
-        $domain = Domain::query()->findOrFail($id);
+        $domain = Domain::query()->where('user_id', $userId)->findOrFail($id);
         $domain->fill($attributes);
         $domain->save();
 
         return $domain;
     }
 
-    public function delete(int $id): void
+    public function delete(int $userId, int $id): void
     {
-        $domain = Domain::query()->findOrFail($id);
+        $domain = Domain::query()->where('user_id', $userId)->findOrFail($id);
         $domain->delete();
     }
 }

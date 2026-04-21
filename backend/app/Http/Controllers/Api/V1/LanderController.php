@@ -7,6 +7,7 @@ use App\Http\Requests\Api\V1\StoreLanderRequest;
 use App\Http\Requests\Api\V1\UpdateLanderRequest;
 use App\Services\LanderService;
 use Illuminate\Http\JsonResponse;
+use Illuminate\Support\Facades\Auth;
 
 class LanderController extends Controller
 {
@@ -16,22 +17,22 @@ class LanderController extends Controller
 
     public function index(): JsonResponse
     {
-        return response()->json($this->landerService->paginateIndex());
+        return response()->json($this->landerService->paginateIndex((int) Auth::id()));
     }
 
     public function store(StoreLanderRequest $request): JsonResponse
     {
-        return response()->json(['data' => $this->landerService->create($request->validated())], 201);
+        return response()->json(['data' => $this->landerService->create((int) Auth::id(), $request->validated())], 201);
     }
 
     public function update(UpdateLanderRequest $request, int $id): JsonResponse
     {
-        return response()->json(['data' => $this->landerService->update($id, $request->validated())]);
+        return response()->json(['data' => $this->landerService->update((int) Auth::id(), $id, $request->validated())]);
     }
 
     public function destroy(int $id): JsonResponse
     {
-        $this->landerService->delete($id);
+        $this->landerService->delete((int) Auth::id(), $id);
 
         return response()->json([], 204);
     }
